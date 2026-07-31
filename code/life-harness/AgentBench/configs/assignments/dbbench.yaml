@@ -1,0 +1,26 @@
+import: definition.yaml
+
+concurrency:
+  task:
+    # dbbench-env_train: 16
+    dbbench-std: 16
+  agent:
+    qwen3-4b-instruct: 16
+
+assignments:
+  - agent:
+      - qwen3-4b-instruct
+    task:
+      # - dbbench-env_train
+      - dbbench-std
+
+
+# output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-baseline"
+# output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-with_harness"
+# output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-no_h2"
+# output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-no_h3"
+# output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-no_h4"
+# output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-no_h5"
+output: "outputs/qwen3-4b-instruct/dbbench/{TIMESTAMP}-only-h3-h5"
+
+trials: 1

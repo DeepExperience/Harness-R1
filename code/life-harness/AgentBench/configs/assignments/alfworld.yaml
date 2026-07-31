@@ -1,0 +1,27 @@
+import: definition.yaml
+
+concurrency:
+  task:
+    # alfworld-env_train: 16
+    alfworld-std: 32
+  agent:
+    qwen3-4b-instruct: 32
+
+assignments:
+  - agent:
+      - qwen3-4b-instruct
+    task:
+      - alfworld-std
+      # - alfworld-env_train
+
+
+# output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-baseline"
+# output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-with_harness"
+# output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-no_h2"
+# output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-no_h3"
+# output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-no_h4"
+# output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-no_h5"
+output: "outputs/qwen3-4b-instruct/alfworld/{TIMESTAMP}-only-h3-h5"
+
+
+trials: 1

@@ -1,0 +1,5 @@
+definition:
+  import: tasks/task_assembly.yaml
+
+start:
+  dbbench-std: 5

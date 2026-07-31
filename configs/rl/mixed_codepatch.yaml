@@ -1,0 +1,62 @@
+# Portable template for ALFWorld + WebShop + DBBench online reward.
+# Replace every /path/to value before launching training.
+
+harness_r1_eval_root: /path/to/output/reward_cache
+harness_r1_reward_cache_protocol: mixed_codepatch_delta_average_reward_v1
+harness_r1_response_protocol: prefill_think_patch
+harness_r1_reward_metric: delta_average_reward
+harness_r1_reject_runtime_noop_patch: true
+harness_r1_require_code_hook_only: true
+harness_r1_allow_partial_eval_reward: false
+harness_r1_retry_incomplete_eval: true
+
+harness_r1_agentbench_dir: /path/to/Harness-R1/code/life-harness/AgentBench
+harness_r1_agentbench_python: /path/to/agentbench/python
+harness_r1_alfworld_worker_python: /path/to/alfworld/python
+harness_r1_webshop_worker_python: /path/to/webshop/python
+harness_r1_dbbench_worker_python: /path/to/agentbench/python
+
+harness_r1_dbbench_data_file: /path/to/AgentBench/data/dbbench/db_out_new.jsonl
+harness_r1_dbbench_max_round: 20
+harness_r1_dbbench_env_driver: manual
+harness_r1_dbbench_manual_mysql_host: 127.0.0.1
+harness_r1_docker_network_name: harness_r1_agentbench
+
+# The target must be identical to the target recorded in the RL JSONL.
+harness_r1_target_urls:
+  - http://127.0.0.1:8110/v1
+harness_r1_target_model: Qwen3.5-9B
+harness_r1_agent_name: qwen35-9b-nothink
+
+harness_r1_alfworld_split: harness_r1_rl
+harness_r1_alfworld_max_step: 50
+harness_r1_webshop_rounds: 20
+harness_r1_rollout_concurrency: 10
+harness_r1_rollout_max_tokens: 4096
+harness_r1_rollout_http_timeout: 900
+harness_r1_rollout_tool_choice: auto
+harness_r1_rollout_chat_template_kwargs:
+  enable_thinking: false
+harness_r1_rollout_system_prefix: ""
+
+harness_r1_reward_threshold: 1.0
+harness_r1_valid_bonus: 0.0
+harness_r1_require_think_patch: false
+harness_r1_auto_retry: true
+
+harness_r1_startup_timeout: 900
+harness_r1_rollout_timeout: 2400
+harness_r1_reward_timeout: 4200
+harness_r1_cache_lock_timeout: 7200
+harness_r1_controller_port_base: 14000
+harness_r1_worker_port_base: 24000
+harness_r1_port_probe_span: 7000
+harness_r1_avoid_ephemeral_ports: true
+harness_r1_eval_max_attempts: 3
+harness_r1_eval_retry_on_infra_failure: 2
+harness_r1_reward_max_concurrency: 10
+harness_r1_mixed_dispatch_concurrency: 10
+
+reward_max_concurrency: 10
+reward_num_workers: 10
+

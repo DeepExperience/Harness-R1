@@ -1,0 +1,74 @@
+default:
+  module: src.server.tasks.webshop.WebShop
+  parameters:
+    concurrency: 64
+    round: 20
+    tools:
+    - type: "function"
+      function:
+        name: "search_action"
+        description: "Use search functionality with specified keywords."
+        parameters:
+          type: "object"
+          properties:
+            keywords:
+              type: "string"
+              description: "The keywords to use in the search function."
+          required:
+            - "keywords"
+          additionalProperties: False
+    - type: "function"
+      function:
+        name: "click_action"
+        description: "Click a button or link with a specified value."
+        parameters:
+          type: "object"
+          properties:
+            value:
+              type: "string"
+              description: "The value to click from the list of available actions."
+          required:
+            - "value"
+          additionalProperties: False
+
+webshop-std:
+  parameters:
+    name: webshop-std
+    start: 0
+    end: 200
+    enabled: true
+    h2: false
+    h3: true
+    h4: false
+    h5: true
+    h5_top_k: 1
+    h5_score_threshold: 3.0
+
+webshop-noharness:
+  parameters:
+    name: webshop-noharness
+    start: 0
+    end: 200
+    sample_size: 20
+    enabled: false
+    h2: false
+    h3: false
+    h4: false
+    h5: false
+    h5_top_k: 1
+    h5_score_threshold: 3.0
+
+webshop-env_train:
+  parameters:
+    name: webshop-env_train
+    start: 1000
+    end: 10000
+    shuffle_seed: 44
+    sample_size: 100
+    enabled: true
+    h2: true
+    h3: false
+    h4: true
+    h5: true
+    h5_top_k: 1
+    h5_score_threshold: 3.0

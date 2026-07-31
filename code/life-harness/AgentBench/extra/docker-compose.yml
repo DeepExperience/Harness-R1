@@ -1,0 +1,113 @@
+name: agentbench-fc
+
+services:
+
+  controller:
+    image: docker.1panel.live/jingbh/agentrl-controller:latest
+    container_name: agentrl-controller
+    network_mode: host
+    command:
+      - controller
+      - --long-timeout
+
+  alfworld-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/alfworld/Dockerfile
+    command: --controller http://172.17.0.1:5020/api alfworld-std
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+    volumes:
+      - ../configs:/app/configs
+      - ../src/server/tasks/alfworld:/app/src/server/tasks/alfworld
+      - ../src/server/harness:/app/src/server/harness
+
+  alfworld-env_train:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/alfworld/Dockerfile
+    command: --controller http://172.17.0.1:5020/api alfworld-env_train
+    volumes:
+      - ../configs:/app/configs
+      - ../src/server/tasks/alfworld:/app/src/server/tasks/alfworld
+      - ../src/server/harness:/app/src/server/harness
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  dbbench-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/dbbench/Dockerfile
+    command: --controller http://172.17.0.1:5020/api dbbench-std
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../configs:/app/configs
+      - ../src/server/tasks/dbbench:/app/src/server/tasks/dbbench
+      - ../src/server/harness:/app/src/server/harness
+    environment:
+      - DBBENCH_STD_PARAMETERS_ENV_OPTIONS_NETWORK_NAME=agentbench-fc_default
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  dbbench-env_train:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/dbbench/Dockerfile
+    command: --controller http://172.17.0.1:5020/api dbbench-env_train
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../configs:/app/configs
+      - ../src/server/tasks/dbbench:/app/src/server/tasks/dbbench
+      - ../src/server/harness:/app/src/server/harness
+    environment:
+      - DBBENCH_ENV_TRAIN_PARAMETERS_ENV_OPTIONS_NETWORK_NAME=agentbench-fc_default
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  webshop-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/webshop/Dockerfile
+    command: --controller http://172.17.0.1:5020/api webshop-std
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - ../configs:/app/configs
+      - ../src/server/tasks/webshop:/app/src/server/tasks/webshop
+      - ../src/server/harness:/app/src/server/harness
+    depends_on:
+      - controller
+
+  webshop-env_train:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/webshop/Dockerfile
+    command: --controller http://172.17.0.1:5020/api webshop-env_train
+    volumes:
+      - ../configs:/app/configs
+      - ../src/server/tasks/webshop:/app/src/server/tasks/webshop
+      - ../src/server/harness:/app/src/server/harness
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  redis:
+    image: docker.m.daocloud.io/redis:7
+    container_name: redis
+    network_mode: host
+    command: redis-server --bind 172.17.0.1 --protected-mode no

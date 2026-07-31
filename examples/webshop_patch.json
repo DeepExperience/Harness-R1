@@ -1,0 +1,17 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Track shopping stage and avoid buying before required options are selected.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'search'\n    nb['last_hint'] = ''\n    return {'skills': [{'text': 'Search, inspect a matching product, select every required option, verify constraints, then buy.'}], 'tool_hint': 'Use visible page evidence before advancing to the next shopping stage.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    state = ctx.get('state', {})\n    text = str(state).lower()\n    if 'buy now' in text and ('required' in text or 'select' in text):\n        msg = 'Before buying, select every required option shown on the product page.'\n        if nb.get('last_hint') != msg:\n            nb['last_hint'] = msg\n            return {'message': msg}\n    return None"
+    }
+  ]
+}

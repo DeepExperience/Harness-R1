@@ -1,0 +1,70 @@
+default:
+  module: src.server.tasks.alfworld.ALFWorld
+  parameters:
+    name: alfworld-std
+    concurrency: 32
+    data_path: "/app/data/alfworld"
+    config_path: "/app/src/server/tasks/alfworld/configs/base_config.yaml"
+    prompts_path: "/app/src/server/tasks/alfworld/prompts/alfworld_multiturn_plan_first.json"
+    split: "new_std"
+    max_step: 50
+    enabled: false
+    h2: true
+    h3: false
+    h4: false
+    h5: false
+    h5_top_k: 1
+    tools:
+      - type: "function"
+        function:
+          name: "take_action"
+          description: "Take an action."
+          parameters:
+            type: "object"
+            properties:
+              action:
+                type: "string"
+                description: "The action you would like to take"
+            required:
+              - "action"
+            additionalProperties: False
+
+alfworld-std:
+  parameters:
+    name: alfworld-std
+    split: "new_std"
+    enabled: true
+    h2: false
+    h3: true
+    h4: false
+    h5: true
+    h5_top_k: 1
+
+alfworld-noharness:
+  parameters:
+    name: alfworld-noharness
+    split: "new_std"
+    start: 0
+    end: 3000
+    sample_size: 20
+    enabled: false
+    h2: false
+    h3: false
+    h4: false
+    h5: false
+    h5_top_k: 1
+
+alfworld-env_train:
+  parameters:
+    name: alfworld-env_train
+    split: "train_valid"
+    shuffle_seed: 43
+    start: 0
+    end: 3000
+    sample_size: 100
+    enabled: true
+    h2: true
+    h3: true
+    h4: true
+    h5: true
+    h5_top_k: 1

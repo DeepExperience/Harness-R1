@@ -1,0 +1,17 @@
+import: definition.yaml
+
+concurrency:
+  task:
+    webshop-noharness: 4
+  agent:
+    qwen3-4b-instruct: 4
+
+assignments:
+  - agent:
+      - qwen3-4b-instruct
+    task:
+      - webshop-noharness
+
+output: "outputs/qwen3-4b-instruct/webshop/{TIMESTAMP}-no-harness-train20"
+
+trials: 1

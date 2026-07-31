@@ -1,0 +1,14 @@
+# Lite preset: start only low-resource tasks.
+# Intended for laptops / limited RAM.
+#
+# Usage:
+#   python -m src.start_task -a --config configs/start_task_lite.yaml
+#
+# You can still override tasks at runtime:
+#   python -m src.start_task -a --config configs/start_task_lite.yaml -s dbbench-std 2
+
+definition:
+  import: tasks/task_assembly.yaml
+
+start:
+  dbbench-std: 1

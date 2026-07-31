@@ -1,0 +1,140 @@
+gpt-3.5-turbo-0613:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "gpt-3.5-turbo-0613"
+        body:
+            model: "gpt-3.5-turbo-0613"
+            max_tokens: 512
+
+text-davinci-003:
+    import: "./openai-text.yaml"
+    parameters:
+        name: "text-davinci-003"
+        body:
+            model: "text-davinci-003"
+            max_tokens: 512
+
+text-davinci-002:
+    import: "./openai-text.yaml"
+    parameters:
+        name: "text-davinci-002"
+        body:
+            model: "text-davinci-002"
+            max_tokens: 512
+
+qwen35-local:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "qwen35-local"
+        url: "http://127.0.0.1:8000/v1/chat/completions"
+        headers:
+            Content-Type: "application/json"
+            Authorization: "Bearer EMPTY"
+        proxies:
+            http: null
+            https: null
+        body:
+            model: "Qwen3.5-9B"
+            max_tokens: 4096
+            temperature: 0.0
+
+
+# Qwen3.5-4B:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "Qwen3.5-4B"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "Qwen3.5-27B"
+#             model: "/opt/models/Qwen3.5-4B"
+#             max_tokens: 4096
+#             temperature: 0.0
+
+
+# Qwen3.5-9B:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "Qwen3.5-9B"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "/opt/models/Qwen3.5-9B"
+#             max_tokens: 4096
+#             temperature: 0.0
+
+
+# Qwen2.5-7B-Instruct:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "Qwen2.5-7B-Instruct"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "/opt/models/Qwen2.5-7B-Instruct"
+#             max_tokens: 4096
+#             temperature: 0.0
+
+
+# Qwen2.5-14B-Instruct:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "Qwen2.5-14B-Instruct"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "/opt/models/Qwen2.5-14B-Instruct"
+#             max_tokens: 4096
+#             temperature: 0.0
+
+
+# xLAM-2-3b-fc-r:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "xLAM-2-3b-fc-r"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "/opt/models/xLAM-2-3b-fc-r"
+#             max_tokens: 4096
+#             temperature: 0.0
+
+
+
+# Llama-xLAM-2-8b-fc-r:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "Llama-xLAM-2-8b-fc-r"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "/opt/models/Llama-xLAM-2-8b-fc-r"
+#             max_tokens: 4096
+#             temperature: 0.0
+
+
+# Llama-3.1-8B-Instruct:
+#     import: "./openai-chat.yaml"
+#     parameters:
+#         name: "Llama-3.1-8B-Instruct"
+#         url: "http://localhost:30001/v1/chat/completions"
+#         headers:
+#             Content-Type: "application/json"
+#             Authorization: "Bearer EMPTY"
+#         body:
+#             model: "/opt/models/Llama-3.1-8B-Instruct"
+#             max_tokens: 4096
+#             temperature: 0.0
+#             parallel_tool_calls: false

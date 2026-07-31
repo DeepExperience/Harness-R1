@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.DS_Store
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+node_modules
+package-lock.json
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+.vscode
+
+
+# custom .gitignore [add by cases]
+.coverage
+coverage.json
+log
+logs
+output
+outputs
+tensorboard_log
+
+.history
+*.log
+*.out
+
+# .github
+.github/copilot-instructions.md

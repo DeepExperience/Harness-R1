@@ -1,0 +1,21 @@
+Harness-R1
+Copyright 2026 Harness-R1 Authors
+
+This distribution includes source derived from Life-Harness / AgentBench:
+  https://github.com/Tianshi-Xu/Life-Harness
+  pinned source revision: 35da88f6fcc45ee8176ad417c36e50bd6efdd2a3
+
+It also includes a trimmed source snapshot of Relax with Harness-R1
+integration code:
+  https://github.com/redai-infra/Relax
+  pinned source revision: 5c5fad161d1f2c3810156c42df03b55bb6d0b422
+
+Both upstream projects are distributed under the Apache License 2.0. Their
+copyright notices and attribution requirements remain in effect. Benchmark
+assets, model weights, and training data are not included in this repository.
+
+The benchmark environments integrated by this project are:
+  WebShop: https://github.com/princeton-nlp/WebShop (MIT License)
+  ALFWorld: https://github.com/alfworld/alfworld (MIT License)
+  AgentBench / DBBench: https://github.com/THUDM/AgentBench
+  (Apache License 2.0)
