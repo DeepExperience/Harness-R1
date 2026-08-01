@@ -7,6 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#installation)
 [![License](https://img.shields.io/badge/License-Apache%202.0-D22128.svg)](LICENSE)
 [![Paper](https://img.shields.io/badge/Paper-coming%20soon-B31B1B.svg)](#citation)
+[![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Checkpoints-Harness--R1-FFD21E.svg)](https://huggingface.co/ShaoShuai0605/Harness-R1)
 [![Engineer](https://img.shields.io/badge/Engineer-Qwen3.5--9B-6E56CF.svg)](#training)
 [![Training](https://img.shields.io/badge/Training-SFT%20%2B%20online%20GRPO-0B7285.svg)](#3-online-grpo)
 [![Benchmarks](https://img.shields.io/badge/Benchmarks-WebShop%20%7C%20ALFWorld%20%7C%20DBBench-2F6F4E.svg)](docs/BENCHMARK_SETUP.md)
@@ -161,15 +162,41 @@ fixed strategy cannot decide on its own.
 
 ## Model Checkpoints
 
-| Model | Role | Link |
-|---|---|---|
-| Harness-R1 engineer (cold-start SFT) | Supervised editing prior | _TBA_ |
-| Harness-R1 engineer (online GRPO) | Outcome-trained editing policy | _TBA_ |
-| Qwen3.5-9B agent SFT | Fine-tuned target agent | _TBA_ |
+Both harness engineers from the main results table are released in a single
+repository: **[🤗 ShaoShuai0605/Harness-R1](https://huggingface.co/ShaoShuai0605/Harness-R1)**
+(Qwen3.5-9B base, Apache-2.0).
 
-> [!NOTE]
-> Checkpoints are not yet published. Links land here when released; see the
-> [roadmap](#release-roadmap).
+| Subfolder | Paper row | Trained against |
+|---|---|---|
+| [`harness-r1`](https://huggingface.co/ShaoShuai0605/Harness-R1/tree/main/harness-r1) | Harness-R1 | The frozen vanilla Qwen3.5-9B target |
+| [`agent-sft-harness-r1`](https://huggingface.co/ShaoShuai0605/Harness-R1/tree/main/agent-sft-harness-r1) | Agent SFT + Harness-R1 | The frozen agent-SFT Qwen3.5-9B target |
+
+```python
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+REPO, SUBFOLDER = "ShaoShuai0605/Harness-R1", "harness-r1"
+tokenizer = AutoTokenizer.from_pretrained(REPO, subfolder=SUBFOLDER, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(REPO, subfolder=SUBFOLDER, trust_remote_code=True)
+```
+
+Serve the chosen subfolder behind an OpenAI-compatible endpoint, point
+`ENGINEER_BASE_URL` / `ENGINEER_MODEL` at it in
+[`configs/eval/endpoints.env.example`](configs/eval/endpoints.env.example), then
+follow [Evaluation](#evaluation). Keep `ENGINEER_CHAT_TEMPLATE_KWARGS` at
+`{"enable_thinking":true}`: the engineer is decoded with the
+`prefill_think_patch` protocol, where the chat template opens the assistant
+`<think>` block and the model completes it before emitting exactly one `<patch>`
+object.
+
+> [!IMPORTANT]
+> An engineer is only meaningful against the target it was trained for.
+> `agent-sft-harness-r1` reproduces the `Agent SFT + Harness-R1` row **only** when
+> the frozen target is the agent-SFT model; pointing it at a vanilla target is a
+> different experiment. Target agents are not part of this release — build the
+> agent-SFT target with
+> [`configs/sft/qwen35_9b_agent_sft.example.yaml`](configs/sft/qwen35_9b_agent_sft.example.yaml),
+> or serve any target you want to edit (the engineer transfers to unseen targets;
+> see [cross-target results](docs/RESULTS.md#target-agent-generalization)).
 
 ## Repository Layout
 
@@ -364,7 +391,7 @@ WebShop, ALFWorld, or DBBench reward.
 | Phase | Contents | Status |
 |---|---|---|
 | 1 | Training and evaluation code, patch protocol, sandbox, configs, docs | ✅ Available |
-| 2 | Engineer and agent-SFT checkpoints | 🚧 In progress |
+| 2 | Harness-engineer checkpoints for both main-table rows | ✅ Available |
 | 3 | Public paper link and citation entry | ⏳ Planned |
 
 ## License
