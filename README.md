@@ -1,9 +1,55 @@
+<div align="center">
+
 # Harness-R1
+
+**Learning to Edit Executable Runtime Harnesses from Agent Failure Trajectories**
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#installation)
+[![License](https://img.shields.io/badge/License-Apache%202.0-D22128.svg)](LICENSE)
+[![Paper](https://img.shields.io/badge/Paper-coming%20soon-B31B1B.svg)](#citation)
+[![Engineer](https://img.shields.io/badge/Engineer-Qwen3.5--9B-6E56CF.svg)](#training)
+[![Training](https://img.shields.io/badge/Training-SFT%20%2B%20online%20GRPO-0B7285.svg)](#3-online-grpo)
+[![Benchmarks](https://img.shields.io/badge/Benchmarks-WebShop%20%7C%20ALFWorld%20%7C%20DBBench-2F6F4E.svg)](docs/BENCHMARK_SETUP.md)
+
+[Overview](#overview) ·
+[Highlights](#highlights) ·
+[Results](#results) ·
+[Models](#model-checkpoints) ·
+[Layout](#repository-layout) ·
+[Installation](#installation) ·
+[Evaluation](#evaluation) ·
+[Training](#training) ·
+[Docs](#documentation) ·
+[Citation](#citation)
+
+Shuai Shao<sup>1,2‡\*</sup>, Kangning Zhang<sup>1,2‡\*</sup>, Qingyao Li<sup>1,2\*</sup>, Shijian Wang<sup>3</sup>, Hao Wang<sup>2</sup>,<br>
+Wenxiang Jiao<sup>2✉</sup>, Yuan Lu<sup>2✉</sup>, Yi Guo<sup>2</sup>, Weiwen Liu<sup>1✉</sup>, Weinan Zhang<sup>1✉</sup>
+
+<sup>1</sup>Shanghai Jiao Tong University · <sup>2</sup>Xiaohongshu Inc. · <sup>3</sup>Southeast University<br>
+<sub><sup>‡</sup>Equal contribution · <sup>\*</sup>Work done during internship at Xiaohongshu Inc. · <sup>✉</sup>Corresponding authors</sub>
+
+</div>
+
+## Overview
 
 Harness-R1 trains a *harness engineer*: a model that reads a batch of failed
 agent trajectories and writes a reusable runtime patch. The patch is validated,
 compiled into sandboxed hooks, and scored by rerunning a frozen target agent on
 exactly the same tasks.
+
+<div align="center">
+  <img src="assets/framework.png" alt="Harness-R1 framework" width="100%">
+</div>
+
+Agents built around large language models accumulate interaction trajectories
+during deployment, yet their behavior typically stays fixed. Beyond updating
+model weights, those trajectories can improve the **agent harness** — the runtime
+that constructs context, mediates tools, validates actions, and recovers
+execution. Harness-R1 makes failure-conditioned, lifecycle-wide editing of an
+existing executable runtime a *learned* capability: a separate 9B engineer turns
+batches of target-agent failures into validated executable patches, and
+same-batch reruns of the frozen target supply the outcome reward, so training
+updates only the engineer.
 
 ```text
 frozen target rollout
@@ -17,32 +63,140 @@ frozen target rollout
 
 The only patch action is `add_code_hook`. A patch may define:
 
-| Hook | Role |
-|---|---|
-| `on_init` | Initialize notebook state and inject reusable skills/tool hints. |
-| `on_post_step` | Update notebook state after an environment step. |
-| `make_pre_hint` | Emit deduplicated soft guidance before the next action. |
-| `on_before_action` | Narrowly allow, block, rewrite, or force an action when supported. |
+| Hook | Lifecycle position | Role |
+|---|---|---|
+| `on_init` | Episode initialization | Initialize notebook state and inject reusable skills/tool hints. |
+| `make_pre_hint` | Pre-decision | Emit deduplicated soft guidance before the next action. |
+| `on_before_action` | Pre-action | Narrowly allow, block, rewrite, or force an action when supported. |
+| `on_post_step` | Post-feedback | Update notebook state after an environment step. |
 
 See [docs/METHOD.md](docs/METHOD.md) and
 [docs/PATCH_FORMAT.md](docs/PATCH_FORMAT.md).
 
-## Layout
+## Highlights
+
+- **Rewards come from real reruns, not a judge.** Every valid patch is compiled,
+  installed, and scored by actually rerunning the frozen target on the same task
+  identities. A well-formed patch is necessary but not sufficient.
+- **Lifecycle-wide editing.** One patch can coordinate four intervention points
+  around the frozen policy — episode init, pre-decision, pre-action, and
+  post-feedback — instead of applying a single fixed pattern.
+- **A trained 9B engineer beats much larger fixed editors.** 53.6% average versus
+  48.8% for the strongest frontier editor (GLM-5.2) prompted on the same evidence.
+- **The engineer co-evolves with the target.** Gains hold both before and after
+  the target agent is fine-tuned: 44.3 → 53.6 on the vanilla target, and
+  59.2 → 64.2 after direct agent SFT.
+- **Transfers without retuning.** One learned editing policy improves all
+  **20 unseen target agents** (+7.06 pp average) and **1,270 held-out tasks**.
+- **Patches run sandboxed.** AST validation rejects imports, I/O, dynamic
+  evaluation, unbounded loops, and benchmark leakage; execution is line- and
+  time-bounded, and hook failures degrade to no effect rather than crashing.
+
+## Results
+
+Target: frozen Qwen3.5-9B. `Score` is the mean shaped WebShop reward, `Succ.` is
+task success rate, and `Avg.` is the equal-weight average of WebShop Succ.,
+ALFWorld All, and DBBench Succ. Full per-family breakdowns are in
+**[docs/RESULTS.md](docs/RESULTS.md)**.
+
+| Method | ALFWorld All | WebShop Score | WebShop Succ. | DBBench Succ. | **Avg.** |
+|---|---|---|---|---|---|
+| Qwen3.5-9B (default harness) | 40.6 | 66.0 | 31.2 | 61.0 | 44.3 |
+| ReAct | 43.4 | 66.8 | 37.4 | 61.7 | 47.5 |
+| Self-Refine | 39.0 | 61.7 | 29.0 | 57.3 | 41.8 |
+| Reflection <sup>‡</sup> | 59.2 | 61.2 | 43.6 | 64.7 | 55.8 |
+| Qwen3.5-397B | 41.2 | 66.4 | 32.8 | 63.3 | 45.8 |
+| GLM-5.2 | 45.0 | 68.4 | 36.0 | 65.3 | 48.8 |
+| Kimi-K2.6 | 41.4 | 63.7 | 31.8 | 62.7 | 45.3 |
+| DeepSeek-V4-Pro | 41.0 | 65.1 | 32.4 | 64.3 | 45.9 |
+| Gemini-3.5-Flash | 35.4 | 63.2 | 33.6 | 64.0 | 44.3 |
+| GPT-5.5 | 43.2 | 61.4 | 36.6 | 64.0 | 47.9 |
+| Supervised-only engineer | 39.4 | 67.8 | 38.6 | 61.3 | 46.4 |
+| **Harness-R1** | 53.2 | 69.9 | 42.2 | 65.3 | **53.6** |
+| Agent SFT | 71.2 | **71.5** | 42.6 | 63.7 | 59.2 |
+| **Agent SFT + Harness-R1** | **84.0** | 68.7 | **43.0** | **65.7** | **64.2** |
+
+<sup>‡</sup> Reflection uses a separate two-episode `success@2` protocol and is
+not ranked against the single-episode rows.
+
+Harness-R1 raises the frozen Qwen3.5-9B target from **44.3% to 53.6%** (+9.3 pp),
+**7.1 pp above the supervised-only engineer** — which isolates what online RL
+adds over cold-start SFT. After direct target-agent SFT, a target-specific
+engineer lifts the stronger actor further, from **59.2% to 64.2%** (+5.0 pp).
+
+<div align="center">
+  <img src="assets/motivation.png" alt="Matched-baseline reward change by editor" width="82%">
+  <br><sub>Matched-baseline change in mean environment reward. Fixed editors are unreliable: Self-Refine <i>lowers</i> reward on all three benchmarks, and frontier editors hover near zero.</sub>
+</div>
+
+### Generalization across target agents
+
+The learned editing policy is applied to targets never seen during training. Each
+target supplies its own failure traces and receives newly generated patches, so
+this measures transfer of the *editing policy*, not replay of a fixed patch.
+
+Across **20 unseen targets** the benchmark-averaged gain is **+7.06 pp**, and
+every target-level average is positive. Over the full 21 × 3 matrix, 56 of 63
+target-benchmark combinations improve, four are unchanged, and the three
+regressions are all ≤ 2.0 pp.
+
+<div align="center">
+  <img src="assets/generalization.png" alt="Cross-target generalization heatmap" width="52%">
+</div>
+
+### Held-out tasks and lifecycle positions
+
+Given the **same 10 failures**, each engineer writes one patch that is applied to
+all remaining tasks (1,270 held-out tasks, three matched seeds). Harness-R1 gains
+**+8.9 ± 1.5 pp** and is positive on every seed, while both frontier engineers
+average negative and straddle zero. Disabling one lifecycle position at a time
+shows pre-action mediation (−3.9) and post-feedback recovery (−3.3) dominate —
+but *which* position dominates is environment-dependent, which is exactly what a
+fixed strategy cannot decide on its own.
+
+<div align="center">
+  <img src="assets/heldout.png" alt="Held-out task generalization" width="49%">
+  <img src="assets/lifecycle.png" alt="Lifecycle position ablation" width="49%">
+</div>
+
+## Model Checkpoints
+
+| Model | Role | Link |
+|---|---|---|
+| Harness-R1 engineer (cold-start SFT) | Supervised editing prior | _TBA_ |
+| Harness-R1 engineer (online GRPO) | Outcome-trained editing policy | _TBA_ |
+| Qwen3.5-9B agent SFT | Fine-tuned target agent | _TBA_ |
+
+> [!NOTE]
+> Checkpoints are not yet published. Links land here when released; see the
+> [roadmap](#release-roadmap).
+
+## Repository Layout
 
 ```text
-code/Relax/                      trimmed RL framework snapshot (upstream: redai-infra/Relax)
-code/Relax/examples/harness_r1/  rewards, evaluators, dataset builders
-code/life-harness/AgentBench/    task runtimes and code-hook execution
-configs/                         SFT, RL, and endpoint configuration
-scripts/                         launch and check wrappers
-tests/                           protocol and sandbox unit tests
+Harness-R1/
+├── assets/                            figures from the paper
+├── code/
+│   ├── Relax/                         trimmed RL framework snapshot (upstream: redai-infra/Relax)
+│   │   └── examples/harness_r1/       rewards, evaluators, dataset builders
+│   └── life-harness/AgentBench/       task runtimes and code-hook execution
+│       ├── scripts/                   patch protocol, trace packets, workers
+│       └── src/server/harness/        sandboxed code_runner and per-benchmark hooks
+├── configs/
+│   ├── eval/endpoints.env.example     engineer/target endpoints and interpreters
+│   ├── rl/mixed_codepatch.yaml        online RL reward and runtime configuration
+│   └── sft/                           cold-start engineer SFT and agent SFT
+├── docs/                              method, patch format, results, case studies, setup
+├── examples/webshop_patch.json        a complete validated patch
+├── scripts/                           launch and check wrappers
+└── tests/                             protocol and sandbox unit tests
 ```
 
 Neither benchmark assets, model weights, nor training data are bundled. See
 [docs/BENCHMARK_SETUP.md](docs/BENCHMARK_SETUP.md) for how to install the
 WebShop, ALFWorld, and DBBench environments.
 
-## Setup
+## Installation
 
 ```bash
 python -m venv code/life-harness/AgentBench/.venv
@@ -66,14 +220,15 @@ Evaluation is fixed-batch run-patch-rerun: read a prompt plus immutable
 baseline metadata, generate one patch, validate it, rerun the frozen target on
 the same tasks, and report patched minus baseline.
 
-The target server must return structured `message.tool_calls`; XML-looking tool
-text inside `message.content` is not equivalent and silently zeroes rewards.
-Probe before a long run:
-
-```bash
-python scripts/probe_openai_tool_calls.py \
-  --base-url "$TARGET_BASE_URL" --model "$TARGET_MODEL"
-```
+> [!IMPORTANT]
+> The target server must return structured `message.tool_calls`. XML-looking tool
+> text inside `message.content` is not equivalent and silently zeroes rewards.
+> Probe before a long run:
+>
+> ```bash
+> python scripts/probe_openai_tool_calls.py \
+>   --base-url "$TARGET_BASE_URL" --model "$TARGET_MODEL"
+> ```
 
 Then run one of the wrappers with an input JSONL and an output directory:
 
@@ -100,9 +255,10 @@ Valid patches whose rerun hit an infrastructure failure can be retried with
 zero; an environment failure is a missing evaluation and must be reported
 separately, never retried until it turns positive.
 
-WebShop results are reportable only when `webshop_goal_seed=233` and the strict
-`webshop_batch_identity_v1` task manifests agree between baseline and patched
-rerun. Matching integer task indices are not proof of a paired comparison.
+> [!IMPORTANT]
+> WebShop results are reportable only when `webshop_goal_seed=233` and the strict
+> `webshop_batch_identity_v1` task manifests agree between baseline and patched
+> rerun. Matching integer task indices are **not** proof of a paired comparison.
 
 ## Training
 
@@ -110,6 +266,9 @@ Three model roles: a **target agent** that runs benchmark tasks and stays
 frozen within a stage, the **harness engineer** being trained, and the frozen
 **reference policy** used by GRPO. The reward is not a learned judge — every
 valid patch is compiled and scored by an actual same-batch rerun.
+
+All three stages below run on a single node with 8× NVIDIA H800 GPUs; record
+counts for each stage are in [docs/RESULTS.md](docs/RESULTS.md#training-record-counts).
 
 ### 1. Cold-start SFT
 
@@ -159,11 +318,12 @@ reward:
 }
 ```
 
-Never reuse baseline rewards produced by a different target model or serving
-protocol. SFT, RL, and evaluation must also agree on the exact system prompt,
-static user prefix and schema, `schema_style`, and the `prefill_think_patch`
-response protocol; changing the static protocol causes train/eval drift and
-sharply reduces format validity.
+> [!WARNING]
+> Never reuse baseline rewards produced by a different target model or serving
+> protocol. SFT, RL, and evaluation must also agree on the exact system prompt,
+> static user prefix and schema, `schema_style`, and the `prefill_think_patch`
+> response protocol; changing the static protocol causes train/eval drift and
+> sharply reduces format validity.
 
 ### 3. Online GRPO
 
@@ -189,8 +349,38 @@ delta average reward. Use `ROLLOUT_SHUFFLE=0` for pre-grouped mixed data.
 `reward_mixed_codepatch.py` dispatches on `metadata["benchmark"]` to the
 WebShop, ALFWorld, or DBBench reward.
 
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [docs/METHOD.md](docs/METHOD.md) | The failure → edit → rerun loop, runtime substrate, sandbox, reward |
+| [docs/PATCH_FORMAT.md](docs/PATCH_FORMAT.md) | Patch JSON contract, hook return effects, validation rules |
+| [docs/RESULTS.md](docs/RESULTS.md) | All paper tables: main, cross-target, held-out, ablation, splits |
+| [docs/CASE_STUDIES.md](docs/CASE_STUDIES.md) | What generated patches do at runtime, including a failure case |
+| [docs/BENCHMARK_SETUP.md](docs/BENCHMARK_SETUP.md) | Installing WebShop, ALFWorld, and DBBench environments |
+
+## Release Roadmap
+
+| Phase | Contents | Status |
+|---|---|---|
+| 1 | Training and evaluation code, patch protocol, sandbox, configs, docs | ✅ Available |
+| 2 | Engineer and agent-SFT checkpoints | 🚧 In progress |
+| 3 | Public paper link and citation entry | ⏳ Planned |
+
 ## License
 
 Harness-R1 code is released under Apache-2.0. Relax, AgentBench, and the
 benchmark environments retain their original notices and licenses; see
 [NOTICE](NOTICE).
+
+## Citation
+
+The paper does not yet have a public identifier. A BibTeX entry will be added
+here once it does; until then, please cite this repository and the paper title:
+
+```text
+Harness-R1: Learning to Edit Executable Runtime Harnesses from Agent Failure Trajectories.
+Shuai Shao, Kangning Zhang, Qingyao Li, Shijian Wang, Hao Wang,
+Wenxiang Jiao, Yuan Lu, Yi Guo, Weiwen Liu, Weinan Zhang. 2026.
+https://github.com/DeepExperience/Harness-R1
+```
