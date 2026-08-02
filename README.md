@@ -21,7 +21,6 @@
 [Installation](#installation) ·
 [Evaluation](#evaluation) ·
 [Training](#training) ·
-[Docs](#documentation) ·
 [Citation](#citation)
 
 Shuai Shao<sup>1,2‡\*</sup>, Kangning Zhang<sup>1,2‡\*</sup>, Qingyao Li<sup>1,2\*</sup>, Shijian Wang<sup>3</sup>, Hao Wang<sup>2</sup>,<br>
@@ -72,8 +71,12 @@ The only patch action is `add_code_hook`. A patch may define:
 | `on_before_action` | Pre-action | Narrowly allow, block, rewrite, or force an action when supported. |
 | `on_post_step` | Post-feedback | Update notebook state after an environment step. |
 
-See [docs/METHOD.md](docs/METHOD.md) and
-[docs/PATCH_FORMAT.md](docs/PATCH_FORMAT.md).
+A hook body is ordinary Python; what the runtime honors is its return value. The
+patch contract lives in
+[`harness_r1_patch.py`](code/life-harness/AgentBench/scripts/harness_r1_patch.py)
+(`schema_prompt`, `normalize_patch`) and the sandbox rules in
+[`code_runner.py`](code/life-harness/AgentBench/src/server/harness/code_runner.py);
+[`examples/webshop_patch.json`](examples/webshop_patch.json) is a complete patch.
 
 ## Highlights
 
@@ -196,7 +199,7 @@ Harness-R1/
 │   ├── rl/mixed_codepatch.yaml        online RL reward and runtime configuration
 │   └── sft/                           cold-start engineer SFT and agent SFT
 ├── demo/                              offline demo (no endpoints or benchmark assets)
-├── docs/                              method, patch format, results, case studies, setup
+├── docs/BENCHMARK_SETUP.md            installing the benchmark environments
 ├── examples/webshop_patch.json        a complete validated patch
 ├── scripts/                           launch and check wrappers
 └── tests/                             protocol and sandbox unit tests
@@ -359,14 +362,6 @@ delta average reward. Use `ROLLOUT_SHUFFLE=0` for pre-grouped mixed data.
 
 `reward_mixed_codepatch.py` dispatches on `metadata["benchmark"]` to the
 WebShop, ALFWorld, or DBBench reward.
-
-## Documentation
-
-| Document | Contents |
-|---|---|
-| [docs/METHOD.md](docs/METHOD.md) | Runtime substrate, sandbox rules, paired-rerun identity, reward |
-| [docs/PATCH_FORMAT.md](docs/PATCH_FORMAT.md) | Patch JSON contract, hook return effects, validation rules |
-| [docs/BENCHMARK_SETUP.md](docs/BENCHMARK_SETUP.md) | Installing WebShop, ALFWorld, and DBBench environments |
 
 ## Release Roadmap
 
