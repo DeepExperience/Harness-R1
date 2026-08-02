@@ -47,16 +47,20 @@ functions are allowed.
 {"message": "..."}
 ```
 
-`on_post_step` and `on_before_action` return a `kind` plus its fields. Any other
-kind is dropped and treated as no effect:
+Hook bodies are ordinary Python — there is no fixed vocabulary for what the code
+may compute. What is constrained is the **return value**: it is the hook's only
+channel into the episode, and the host runtime honors just these effects.
 
-| Hook | Allowed `kind` |
+| Hook | Effect `kind` it may return |
 |---|---|
 | `on_post_step` | `inject_hint`, `force_action` |
 | `on_before_action` | `block_and_prompt`, `rewrite_action`, `force_action` |
 
-DBBench ignores rewrite/force effects in the v1 runtime, so prefer state updates
-and soft guidance there.
+Anything else is dropped and the step proceeds as if the hook returned `None`
+(`_normalize_hook_result` in `code_runner.py`). The action string carried by
+`rewrite_action` / `force_action` is free text; only numbered ALFWorld instance
+actions are checked against the admissible set. DBBench ignores rewrite/force in
+the v1 runtime, so prefer state updates and soft guidance there.
 
 See [examples/webshop_patch.json](../examples/webshop_patch.json) and the
 benchmark-specific `schema_prompt()` branches in
