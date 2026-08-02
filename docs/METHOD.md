@@ -13,9 +13,6 @@ read-only deep copy of runtime context `ctx` and the mutable notebook.
 - `on_before_action` applies narrow hard intervention when the benchmark
   runtime supports it.
 
-The substrate is deliberately smaller than the hand-engineered Life-Harness
-policy. Built-in H2/H3/H4/H5 modules are disabled in Harness-R1 experiments.
-
 ## Sandbox
 
 `code_runner.py` parses hook code with Python AST checks. It rejects imports,

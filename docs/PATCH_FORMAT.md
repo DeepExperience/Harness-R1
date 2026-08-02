@@ -47,12 +47,16 @@ functions are allowed.
 {"message": "..."}
 ```
 
-`on_post_step` may return `inject_hint`; WebShop/ALFWorld can also support a
-narrow `force_action` effect. Prefer state updates and soft guidance.
+`on_post_step` and `on_before_action` return a `kind` plus its fields. Any other
+kind is dropped and treated as no effect:
 
-`on_before_action` may return `block_and_prompt`; where supported it can also
-return `rewrite_action` or `force_action`. DBBench intentionally ignores
-rewrite/force effects in the v1 runtime.
+| Hook | Allowed `kind` |
+|---|---|
+| `on_post_step` | `inject_hint`, `force_action` |
+| `on_before_action` | `block_and_prompt`, `rewrite_action`, `force_action` |
+
+DBBench ignores rewrite/force effects in the v1 runtime, so prefer state updates
+and soft guidance there.
 
 See [examples/webshop_patch.json](../examples/webshop_patch.json) and the
 benchmark-specific `schema_prompt()` branches in
@@ -62,9 +66,8 @@ benchmark-specific `schema_prompt()` branches in
 
 The validator checks the outer schema, benchmark-specific hook set, AST safety,
 effect contract, action/tool syntax, code length, exact-answer leakage, and
-runtime no-op behavior. Use `require_code_hook_only_patch()` in all new
-training and evaluation code. Legacy DSL actions are accepted only by explicit
-historical compatibility paths.
+runtime no-op behavior. `require_code_hook_only_patch()` enforces that a patch
+contains nothing but `add_code_hook`; use it in all training and evaluation code.
 
 Leakage checks are benchmark scoped. For example, numbered ALFWorld instance
 actions are rejected only for ALFWorld hooks, so unrelated strings in WebShop
