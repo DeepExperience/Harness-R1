@@ -94,8 +94,7 @@ See [docs/METHOD.md](docs/METHOD.md) and
 
 Target: frozen Qwen3.5-9B. `Score` is the mean shaped WebShop reward, `Succ.` is
 task success rate, and `Avg.` is the equal-weight average of WebShop Succ.,
-ALFWorld All, and DBBench Succ. Full per-family breakdowns are in
-**[docs/RESULTS.md](docs/RESULTS.md)**.
+ALFWorld All, and DBBench Succ.
 
 | Method | ALFWorld All | WebShop Score | WebShop Succ. | DBBench Succ. | **Avg.** |
 |---|---|---|---|---|---|
@@ -278,8 +277,9 @@ frozen within a stage, the **harness engineer** being trained, and the frozen
 **reference policy** used by GRPO. The reward is not a learned judge — every
 valid patch is compiled and scored by an actual same-batch rerun.
 
-All three stages below run on a single node with 8× NVIDIA H800 GPUs; record
-counts for each stage are in [docs/RESULTS.md](docs/RESULTS.md#training-record-counts).
+All three stages run on a single node with 8× NVIDIA H800 GPUs. The reference
+runs use 877 cold-start editing examples, roughly 1,500 RL failure packets, and
+2,515 agent-SFT trajectories.
 
 ### 1. Cold-start SFT
 
@@ -364,10 +364,8 @@ WebShop, ALFWorld, or DBBench reward.
 
 | Document | Contents |
 |---|---|
-| [docs/METHOD.md](docs/METHOD.md) | The failure → edit → rerun loop, runtime substrate, sandbox, reward |
+| [docs/METHOD.md](docs/METHOD.md) | Runtime substrate, sandbox rules, paired-rerun identity, reward |
 | [docs/PATCH_FORMAT.md](docs/PATCH_FORMAT.md) | Patch JSON contract, hook return effects, validation rules |
-| [docs/RESULTS.md](docs/RESULTS.md) | All paper tables: main, cross-target, held-out, ablation, splits |
-| [docs/CASE_STUDIES.md](docs/CASE_STUDIES.md) | What generated patches do at runtime, including a failure case |
 | [docs/BENCHMARK_SETUP.md](docs/BENCHMARK_SETUP.md) | Installing WebShop, ALFWorld, and DBBench environments |
 
 ## Release Roadmap
