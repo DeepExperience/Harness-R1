@@ -36,6 +36,8 @@ REQUIRED = (
     "configs/rl/mixed_codepatch.yaml",
     "scripts/train_engineer_rl.sh",
     "scripts/eval_webshop.sh",
+    "demo/run_demo.py",
+    "demo/artifacts/patch.json",
 )
 FORBIDDEN = {
     "private API key": re.compile(
@@ -132,6 +134,7 @@ def main() -> int:
                 "code/Relax/examples/harness_r1",
                 "code/life-harness/AgentBench/scripts",
                 "code/life-harness/AgentBench/src/server/harness",
+                "demo",
                 "scripts",
                 "tests",
             ],

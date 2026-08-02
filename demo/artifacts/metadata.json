@@ -1,0 +1,29 @@
+{
+  "benchmark": "webshop",
+  "batch_tag": "webshop_test_qwen35_9b_noharness_enable_thinking_false_0_500_20260608_221116_b008",
+  "start": 80,
+  "end": 90,
+  "batch_size": 10,
+  "baseline_pass": 1,
+  "baseline_pass_rate": 0.1,
+  "baseline_rewards": {
+    "80": 0.4,
+    "81": 0.6666666666666666,
+    "82": 0.6666666666666666,
+    "83": 0.3333333333333333,
+    "84": 0.8,
+    "85": 0.25,
+    "86": 1.0,
+    "87": 0.6666666666666666,
+    "88": 0.3333333333333333,
+    "89": 0.75
+  },
+  "reward_threshold": 1.0,
+  "target_agent_name": "qwen35-9b-rollout-nothink",
+  "target_model": "Qwen3.5-9B",
+  "prompt_version": "webshop_code_patch_test_code_only_prefill_rewrite_20260615",
+  "response_protocol": "prefill_think_patch",
+  "schema_style": "webshop_code_only",
+  "output_protocol": "prefill_think_patch",
+  "note": "Baseline metadata for one stored Harness-R1 WebShop evaluation. Task identities and baseline rewards are immutable inputs to the reward."
+}

@@ -1,0 +1,150 @@
+{
+  "note": "Runtime contexts for replaying the stored on_before_action guard offline. Field names follow the documented WebShop ctx contract in code/life-harness/AgentBench/scripts/harness_r1_patch.py (schema_prompt, webshop branch). Instructions, product titles, prices and clickable lists are copied verbatim from the stored baseline trajectories of batch 008; see the provenance field on each scenario.",
+  "scenarios": [
+    {
+      "id": "task-85-missing-flavor",
+      "title": "Required attribute has no option on the page",
+      "provenance": "recorded: state and pending action are both taken from the stored trajectory of task 85, where the target issued click[buy now] on this page and scored 0.25",
+      "instruction": "i need a chocolate coated wafers with a 4.41 ounce size. and i choose the caramel flavor, and price lower than 80.00 dollars",
+      "product": "Loacker Cookies, Tortina, 4.41 Ounce (Pack of 12)",
+      "baseline_reward": 0.25,
+      "expect": "block_and_prompt",
+      "ctx": {
+        "step": 3,
+        "action": {
+          "tool": "click_action",
+          "value": "buy now",
+          "value_normalized": "buy now",
+          "final_action": "click[buy now]"
+        },
+        "state": {
+          "page_type": "product_detail",
+          "has_search_bar": false,
+          "buy_now_available": true,
+          "clickables": ["back to search", "< prev", "description", "features", "reviews", "buy now"],
+          "current_price": 78.0,
+          "price_max": 80.0,
+          "remaining_steps": 12,
+          "same_click_count": 0,
+          "product_stall_turns": 0
+        },
+        "task": {
+          "task_type": "food",
+          "required_color": null,
+          "required_size": "4.41 ounce",
+          "required_material": null
+        },
+        "predicates": {
+          "required_options_unselected": true,
+          "product_price_over_budget": false,
+          "buy_now_available": true,
+          "same_click_repeated": false,
+          "action_not_admissible": false
+        },
+        "admissible": ["back to search", "< prev", "description", "features", "reviews", "buy now"]
+      }
+    },
+    {
+      "id": "task-83-unselected-options",
+      "title": "Required option is visible but unselected",
+      "provenance": "counterfactual: the product page state is copied verbatim from the stored trajectory of task 83, but the pending action is set to click[buy now] to ask what the guard would rule at this point. In that stored run the target selected the options itself, so the guard was never consulted here.",
+      "instruction": "i need a slim fit gray colored coat that has long sleeves. it should be in x-large size, and price lower than 60.00 dollars",
+      "product": "LADIGASU Men's Woolen Pea Coat Notched Lapel Collar Overcoat Long Sleeve Pea Coat Slim-Fit Winter Trench Coat with Pockets",
+      "baseline_reward": 0.3333333333333333,
+      "expect": "rewrite_action",
+      "ctx": {
+        "step": 3,
+        "action": {
+          "tool": "click_action",
+          "value": "buy now",
+          "value_normalized": "buy now",
+          "final_action": "click[buy now]"
+        },
+        "state": {
+          "page_type": "product_detail",
+          "has_search_bar": false,
+          "buy_now_available": true,
+          "clickables": [
+            "back to search", "< prev", "description", "features", "reviews", "buy now",
+            "medium", "large", "x-large", "xx-large", "3x-large", "4x-large",
+            "black", "gray", "navy", "wine"
+          ],
+          "current_price": 55.59,
+          "price_max": 60.0,
+          "remaining_steps": 12,
+          "same_click_count": 0,
+          "product_stall_turns": 0
+        },
+        "task": {
+          "task_type": "clothing",
+          "required_color": "gray",
+          "required_size": "x-large",
+          "required_material": null
+        },
+        "predicates": {
+          "required_options_unselected": true,
+          "product_price_over_budget": false,
+          "buy_now_available": true,
+          "same_click_repeated": false,
+          "action_not_admissible": false
+        },
+        "admissible": [
+          "back to search", "< prev", "description", "features", "reviews", "buy now",
+          "medium", "large", "x-large", "xx-large", "3x-large", "4x-large",
+          "black", "gray", "navy", "wine"
+        ]
+      }
+    },
+    {
+      "id": "task-83-options-selected",
+      "title": "Options already selected, purchase is legitimate",
+      "provenance": "recorded: state and pending action are both taken from the stored trajectory of task 83 after the target clicked gray and x-large and then issued click[buy now]",
+      "instruction": "i need a slim fit gray colored coat that has long sleeves. it should be in x-large size, and price lower than 60.00 dollars",
+      "product": "LADIGASU Men's Woolen Pea Coat Notched Lapel Collar Overcoat Long Sleeve Pea Coat Slim-Fit Winter Trench Coat with Pockets",
+      "baseline_reward": 0.3333333333333333,
+      "expect": "no intervention",
+      "ctx": {
+        "step": 5,
+        "action": {
+          "tool": "click_action",
+          "value": "buy now",
+          "value_normalized": "buy now",
+          "final_action": "click[buy now]"
+        },
+        "state": {
+          "page_type": "product_detail",
+          "has_search_bar": false,
+          "buy_now_available": true,
+          "clickables": [
+            "back to search", "< prev", "description", "features", "reviews", "buy now",
+            "medium", "large", "x-large", "xx-large", "3x-large", "4x-large",
+            "black", "gray", "navy", "wine"
+          ],
+          "current_price": 55.59,
+          "price_max": 60.0,
+          "remaining_steps": 10,
+          "same_click_count": 0,
+          "product_stall_turns": 0
+        },
+        "task": {
+          "task_type": "clothing",
+          "required_color": "gray",
+          "required_size": "x-large",
+          "required_material": null
+        },
+        "predicates": {
+          "required_options_unselected": false,
+          "product_price_over_budget": false,
+          "buy_now_available": true,
+          "same_click_repeated": false,
+          "action_not_admissible": false
+        },
+        "admissible": [
+          "back to search", "< prev", "description", "features", "reviews", "buy now",
+          "medium", "large", "x-large", "xx-large", "3x-large", "4x-large",
+          "black", "gray", "navy", "wine"
+        ]
+      }
+    }
+  ]
+}

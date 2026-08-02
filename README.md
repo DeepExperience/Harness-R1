@@ -12,6 +12,7 @@
 [![Training](https://img.shields.io/badge/Training-SFT%20%2B%20online%20GRPO-0B7285.svg)](#3-online-grpo)
 [![Benchmarks](https://img.shields.io/badge/Benchmarks-WebShop%20%7C%20ALFWorld%20%7C%20DBBench-2F6F4E.svg)](docs/BENCHMARK_SETUP.md)
 
+[Demo](#-demo) ·
 [Overview](#overview) ·
 [Highlights](#highlights) ·
 [Results](#results) ·
@@ -30,6 +31,28 @@ Wenxiang Jiao<sup>2✉</sup>, Yuan Lu<sup>2✉</sup>, Yi Guo<sup>2</sup>, Weiwen
 <sub><sup>‡</sup>Equal contribution · <sup>\*</sup>Work done during internship at Xiaohongshu Inc. · <sup>✉</sup>Corresponding authors</sub>
 
 </div>
+
+## 🎬 Demo
+
+```bash
+python demo/run_demo.py
+```
+
+No GPU, no model endpoint, no benchmark assets — about a second to run. It walks
+one real editing instance end to end: the frozen target's failures on ten
+WebShop tasks, the engineer's actual reasoning and generated patch, this
+repository's real validator and sandbox accepting and compiling it, and the
+compiled guard ruling on recorded product-page states.
+
+<div align="center">
+  <img src="assets/demo.gif" alt="Harness-R1 offline demo" width="88%">
+</div>
+
+The patch, the reasoning, and the batch outcome are stored artifacts from a real
+evaluation. The validation results and the guard decisions are **not** stored —
+they are computed when you run it, so editing `demo/artifacts/patch.json`
+changes what you see. See [demo/README.md](demo/README.md) for provenance and
+scope.
 
 ## Overview
 
@@ -213,6 +236,9 @@ Harness-R1/
 │   ├── eval/endpoints.env.example     engineer/target endpoints and interpreters
 │   ├── rl/mixed_codepatch.yaml        online RL reward and runtime configuration
 │   └── sft/                           cold-start engineer SFT and agent SFT
+├── demo/                              offline end-to-end demo (no endpoints needed)
+│   ├── run_demo.py                    validate, compile, and replay a stored patch
+│   └── artifacts/                     real failure metadata, patch, and rerun result
 ├── docs/                              method, patch format, results, case studies, setup
 ├── examples/webshop_patch.json        a complete validated patch
 ├── scripts/                           launch and check wrappers
@@ -380,6 +406,7 @@ WebShop, ALFWorld, or DBBench reward.
 
 | Document | Contents |
 |---|---|
+| [demo/README.md](demo/README.md) | The offline demo: what it runs, provenance of its artifacts |
 | [docs/METHOD.md](docs/METHOD.md) | The failure → edit → rerun loop, runtime substrate, sandbox, reward |
 | [docs/PATCH_FORMAT.md](docs/PATCH_FORMAT.md) | Patch JSON contract, hook return effects, validation rules |
 | [docs/RESULTS.md](docs/RESULTS.md) | All paper tables: main, cross-target, held-out, ablation, splits |

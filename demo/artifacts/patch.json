@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Guard Buy Now against missing required options and over-budget products.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def norm(x):\n    if x is None:\n        return \"\"\n    return str(x).strip().lower()\n\ndef matches(req, opt):\n    r = norm(req)\n    o = norm(opt)\n    if not r or not o:\n        return False\n    if r == o or r in o or o in r:\n        return True\n    r2 = r.replace(\" \", \"\").replace(\"-\", \"\").replace(\"_\", \"\")\n    o2 = o.replace(\" \", \"\").replace(\"-\", \"\").replace(\"_\", \"\")\n    if r2 and (r2 == o2 or r2 in o2 or o2 in r2):\n        return True\n    return False\n\ndef choose_option(reqs, clickables):\n    for req in reqs:\n        if norm(req):\n            for opt in clickables:\n                if matches(req, opt):\n                    return opt\n    return \"\"\n\ndef hook(ctx, nb):\n    try:\n        action = ctx[\"action\"]\n        state = ctx[\"state\"]\n        preds = ctx[\"predicates\"]\n        task = ctx[\"task\"]\n        tool = action[\"tool\"]\n        val = norm(action[\"value_normalized\"])\n        if tool != \"click_action\" or val != \"buy now\":\n            return None\n        if preds[\"product_price_over_budget\"]:\n            return {\"kind\": \"block_and_prompt\", \"message\": \"Do not buy this item: its current price is over the task budget. Go back to search/results and choose an in-budget product or variant.\"}\n        if preds[\"required_options_unselected\"]:\n            clickables = state[\"clickables\"]\n            reqs = [task[\"required_color\"], task[\"required_size\"], task[\"required_material\"]]\n            opt = choose_option(reqs, clickables)\n            if opt:\n                return {\"kind\": \"rewrite_action\", \"action\": opt, \"message\": \"Select the required visible option before using Buy Now.\"}\n            return {\"kind\": \"block_and_prompt\", \"message\": \"A required product option is still unselected. Select the matching visible color, size, or material before Buy Now; if no matching option exists, go back to search/results.\"}\n    except Exception:\n        return None\n    return None"
+    }
+  ]
+}
