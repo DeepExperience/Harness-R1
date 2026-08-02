@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """Offline Harness-R1 demo: validate and execute a stored engineer patch.
 
-No GPU, no model endpoint, and no benchmark assets are required. The patch, the
-engineer's reasoning, the baseline metadata, and the batch outcome are stored
-artifacts from a real evaluation; the validation and the hook decisions printed
-below are computed live by this repository's own validator and sandbox.
-
-    python demo/run_demo.py            # colored output when the terminal supports it
-    python demo/run_demo.py --no-color
+Artifacts under demo/artifacts/ come from a real evaluation; the validation and
+hook decisions are computed live. No GPU, endpoint, or benchmark assets needed.
 """
 
 from __future__ import annotations

@@ -1,13 +1,8 @@
 # Results
 
 Full result tables from the Harness-R1 paper. All numbers are percentages;
-deltas are in percentage points (pp).
-
-Throughout, the **target agent** runs the benchmark tasks and stays frozen, and
-the **harness engineer** is the trained model that writes the runtime patch.
-Every reported gain comes from rerunning the frozen target on the same tasks
-with the generated patch installed — never from a learned judge or a
-self-reported score.
+deltas are in percentage points (pp). Every gain comes from rerunning the frozen
+target on the same tasks with the generated patch installed.
 
 - [Main results](#main-results)
 - [Target-agent generalization](#target-agent-generalization)
@@ -49,24 +44,12 @@ protocol: its success columns are cumulative over two episodes and its Score is
 measured after retrying first-episode failures. All other rows are `success@1`,
 so Reflection is not ranked against them.
 
-Headline reads:
-
-- **Outcome-trained editing improves the frozen target on every benchmark.**
-  Average success rises 44.3 → 53.6 (**+9.3 pp**), with the largest absolute gain
-  on ALFWorld (40.6 → 53.2). Harness-R1 is 7.1 pp above the supervised-only
-  engineer, which isolates the contribution of online RL over cold-start SFT.
-- **A trained 9B engineer beats much larger fixed editors.** The strongest
-  frontier editor is GLM-5.2 at 48.8, versus 53.6 for Harness-R1. Frontier models
-  optimize for a plausible-looking edit; they never rerun the target, so they
-  cannot tell whether an edit actually raises success.
-- **Fixed harness patterns are not reliably helpful.** ReAct adds 3.2 pp, while
-  Self-Refine *removes* 2.5 pp — one hand-crafted rule applied uniformly ignores
-  both the target's specific failure modes and whether the intervention works.
-- **The engineer keeps helping after the actor is fine-tuned.** Direct agent SFT
-  lifts the unmodified target to 59.2; a target-specific engineer retrained for
-  that stronger actor reaches 64.2 (**+5.0 pp**). Harness editing does not
-  saturate once the agent improves, which is what makes engineer/target
-  co-evolution plausible.
+- Average success rises **44.3 → 53.6** (+9.3 pp), largest gain on ALFWorld
+  (40.6 → 53.2), and 7.1 pp above the supervised-only engineer.
+- The strongest frontier editor is GLM-5.2 at 48.8, versus 53.6 for Harness-R1.
+- Fixed patterns are unreliable: ReAct adds 3.2 pp, Self-Refine removes 2.5 pp.
+- After agent SFT, a target-specific engineer reaches **64.2** (+5.0 pp), so
+  harness editing does not saturate once the actor improves.
 
 ## Target-agent generalization
 
@@ -133,12 +116,8 @@ seeds.
 | Qwen3.5-397B | 8/9 | −4.3 ± 2.5 | −3.9 ± 2.5 |
 | DeepSeek-V4-Pro | 6/9 | −0.4 ± 3.6 | −0.2 ± 3.5 |
 
-The gap is not only in the mean. Harness-R1 is positive on **every** seed at a
-tight ±1.5, whereas both frontier engineers average negative and straddle zero
-across seeds (±2.5 and ±3.6), swinging between marginal gains and sizable
-regressions. Converting sparse failure evidence into a broadly useful edit is a
-capability that scale alone does not confer, and one that outcome-grounded
-training makes both stronger and more consistent.
+Harness-R1 is positive on every seed at a tight ±1.5, whereas both frontier
+engineers average negative and straddle zero (±2.5 and ±3.6).
 
 ## Lifecycle-position ablation
 
@@ -161,13 +140,11 @@ Removing **pre-action mediation** or **post-feedback recovery** causes the large
 drops (3.9 and 3.3 pp), while removing episode initialization or pre-decision
 costs only 0.9 and 0.6 pp.
 
-The dominant position is environment-dependent: pre-action mediation matters most
-on WebShop (41.6 → 31.5), whereas post-feedback recovery matters most on ALFWorld
-(52.1 → 41.9). Because one patch can coordinate several positions — and the
-evaluated WebShop patches contain only pre-action edits — these effects are
-conditional and should **not** be summed into a universal importance ranking. The
-practical implication is the opposite: which position matters is itself something
-the editor must decide per environment, which a fixed strategy cannot do.
+The dominant position is environment-dependent: pre-action matters most on
+WebShop (41.6 → 31.5), post-feedback most on ALFWorld (52.1 → 41.9). Because one
+patch can coordinate several positions — and the evaluated WebShop patches
+contain only pre-action edits — these effects are conditional and should **not**
+be summed into a universal ranking.
 
 ## Data splits
 
@@ -196,10 +173,6 @@ patches, or optimizer samples.
   and split 2,401 / 2,402; 100 RL-side tasks are reserved for validation. The
   separate 300-task standard test set is used only for evaluation.
 
-Teacher filtering, failure-packet construction, benchmark balancing, and
-multi-candidate sampling all operate *within* these partitions, so their record
-counts are training-accounting quantities rather than additional task splits.
-
 ### Training record counts
 
 Derived from the splits above. These are the quantities the reported runs
@@ -214,12 +187,10 @@ and [`scripts/train_engineer_rl.sh`](../scripts/train_engineer_rl.sh).
 | Engineer online GRPO | ~1,500 failure packets | disjoint task split from SFT |
 | Direct target-agent SFT | 2,515 trajectories | 901 WebShop / 774 ALFWorld / 840 DBBench |
 
-Cold-start candidates come from a **GPT-5.5 teacher** and are retained only if
-they are executable, complete the same-batch rerun, and achieve a non-negative
-task-reward change. Agent-SFT trajectories are successful no-intervention
-episodes, deduplicated by benchmark and canonical task identity.
-
-All three stages run on a single node with **8× NVIDIA H800** GPUs.
+Cold-start candidates come from a GPT-5.5 teacher, retained only if executable,
+complete on the same-batch rerun, and non-negative in task reward. Agent-SFT
+trajectories are successful no-intervention episodes, deduplicated by task
+identity. All three stages run on a single node with 8× NVIDIA H800 GPUs.
 
 ## See also
 

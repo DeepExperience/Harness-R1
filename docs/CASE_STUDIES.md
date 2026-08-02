@@ -2,15 +2,11 @@
 
 What a learned harness patch actually does at runtime.
 
-These are stored evaluations from the validation-selected Harness-R1 engineer
-used for the main frozen-target results. In every case the target agent is the
-same frozen Qwen3.5-9B model before and after patch installation, and the patched
-run uses the same ten tasks as its baseline evidence.
-
-We inspect the **runtime trace** in addition to the generated code, so that an
-intended edit is not mistaken for an intervention that actually executed. These
-cases illustrate distinct mechanisms and limitations; the aggregate claims live
-in [RESULTS.md](RESULTS.md), not in these selected examples.
+Stored evaluations from the validation-selected engineer used for the main
+frozen-target results. The target is the same frozen Qwen3.5-9B before and after
+patch installation, on the same ten tasks as its baseline evidence. Runtime
+traces are inspected alongside the code, so an intended edit is not mistaken for
+one that actually executed. Aggregate claims live in [RESULTS.md](RESULTS.md).
 
 | Environment | Success before | Success after | Δ | Primary behavior illustrated |
 |---|---|---|---|---|
@@ -49,10 +45,6 @@ Across the ten-task batch the same guard raises full successes from 2 to 5 and
 mean WebShop reward from 0.682 to 0.768, while preserving both tasks that were
 already fully successful.
 
-> An effective harness edit need not replace the target's policy with a large
-> controller. A low-bandwidth intervention at the point of an unsafe action
-> preserves the target's search behavior while changing the final outcome.
-
 ## ALFWorld: coordinating multiple lifecycle positions
 
 **Observed failure.** ALFWorld batch 045 contains recurrent failures where the
@@ -80,10 +72,6 @@ At batch level the patch rescues six baseline failures but regresses one baselin
 success, a net 1/10 → 6/10. It does not resolve everything: one two-object
 trajectory continues to alternate between destination and placement guidance.
 
-> This is a genuine closed-loop harness policy — persistent state, conditioned
-> guidance, and a guard that acts on it — while also showing that stage tracking
-> can remain imperfect.
-
 ## DBBench: preserving schema and stored-value conventions
 
 **Observed failure.** DBBench batch 022 contains recurring failures around
@@ -110,11 +98,6 @@ match the stored convention, and verifies the row before committing.
 | GLM-5.2 patch | 5/10 | `4 hours` (failure) |
 | **Harness-R1 patch** | **6/10** | `4 Hours` (success) |
 
-> This paired example does not rely on an invalid competitor output — both
-> engineers produce executable patches. The difference is that the
-> Harness-R1-guided run converts schema and row evidence into the exact stored
-> representation the task requires.
-
 ## A failure case of direct harness editing
 
 An off-the-shelf model can access the complete lifecycle interface and still
@@ -128,24 +111,6 @@ broad `on_before_action` rules that force actions from a locally plausible stage
 estimate. On two-object tasks it prematurely places the first object instead of
 collecting both before placement — overriding decisions the frozen target had
 previously executed correctly.
-
-> Execution traces plus a powerful base model do not yield a reliable harness
-> editor. A plausible diagnosis can still compile into overly aggressive runtime
-> behavior. Harness-R1 post-trains the editing policy on realized task outcomes,
-> which directly penalizes patches that degrade rerun performance.
-
-## Cross-case interpretation
-
-- **WebShop.** The recurring failure is premature purchase. Harness-R1 installs a
-  narrow action guard conditioned on runtime predicates — though the guard cannot
-  repair an earlier choice of the wrong product.
-- **ALFWorld.** The recurring failures are omitted transformations and incorrect
-  placement. Harness-R1 combines persistent stage state, targeted hints, and a
-  placement guard, while routing and two-object state can still cause regressions
-  or loops.
-- **DBBench.** The recurring failure is format and schema mismatch. Harness-R1
-  routes the target through evidence collection before mutation, which a
-  generically worded competitor patch does not achieve.
 
 ## See also
 
