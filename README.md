@@ -6,7 +6,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#installation)
 [![License](https://img.shields.io/badge/License-Apache%202.0-D22128.svg)](LICENSE)
-[![Paper](https://img.shields.io/badge/Paper-coming%20soon-B31B1B.svg)](#citation)
+[![arXiv](https://img.shields.io/badge/arXiv-2608.02276-B31B1B.svg?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2608.02276)
 [![Checkpoints](https://img.shields.io/badge/%F0%9F%A4%97%20Checkpoints-Harness--R1-FFD21E.svg)](https://huggingface.co/ShaoShuai0605/Harness-R1)
 [![Engineer](https://img.shields.io/badge/Engineer-Qwen3.5--9B-6E56CF.svg)](#training)
 [![Training](https://img.shields.io/badge/Training-SFT%20%2B%20online%20GRPO-0B7285.svg)](#3-online-grpo)
@@ -97,7 +97,8 @@ patch contract lives in
 
 Target: frozen Qwen3.5-9B. `Score` is the mean shaped WebShop reward, `Succ.` is
 task success rate, and `Avg.` is the equal-weight average of WebShop Succ.,
-ALFWorld All, and DBBench Succ.
+ALFWorld All, and DBBench Succ. Full protocol, per-target tables, and case
+studies are in the [paper](https://arxiv.org/abs/2608.02276).
 
 | Method | ALFWorld All | WebShop Score | WebShop Succ. | DBBench Succ. | **Avg.** |
 |---|---|---|---|---|---|
@@ -369,7 +370,7 @@ WebShop, ALFWorld, or DBBench reward.
 |---|---|---|
 | 1 | Training and evaluation code, patch protocol, sandbox, configs, docs | ✅ Available |
 | 2 | Harness-engineer checkpoints for both main-table rows | ✅ Available |
-| 3 | Public paper link and citation entry | ⏳ Planned |
+| 3 | Public paper link and citation entry | ✅ Available |
 
 ## License
 
@@ -379,12 +380,14 @@ benchmark environments retain their original notices and licenses; see
 
 ## Citation
 
-The paper does not yet have a public identifier. A BibTeX entry will be added
-here once it does; until then, please cite this repository and the paper title:
-
-```text
-Harness-R1: Learning to Edit Executable Runtime Harnesses from Agent Failure Trajectories.
-Shuai Shao, Kangning Zhang, Qingyao Li, Shijian Wang, Hao Wang,
-Wenxiang Jiao, Yuan Lu, Yi Guo, Weiwen Liu, Weinan Zhang. 2026.
-https://github.com/DeepExperience/Harness-R1
+```bibtex
+@misc{shao2026harnessr1learningeditexecutable,
+      title={Harness-R1: Learning to Edit Executable Runtime Harnesses from Agent Failure Trajectories},
+      author={Shuai Shao and Kangning Zhang and Qingyao Li and Shijian Wang and Hao Wang and Wenxiang Jiao and Yuan Lu and Yi Guo and Weiwen Liu and Weinan Zhang},
+      year={2026},
+      eprint={2608.02276},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2608.02276},
+}
 ```
