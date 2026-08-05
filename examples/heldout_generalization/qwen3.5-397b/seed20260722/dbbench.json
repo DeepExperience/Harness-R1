@@ -1,0 +1,22 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Add MySQL identifier quoting guidance, schema discovery tracking, and mutation verification before commit",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    tool_hint = \"MySQL: use backticks `identifier` for table/column names with spaces, hyphens, or special characters. Single quotes are for string values only. Use SHOW TABLES and DESCRIBE `table` to discover exact names.\"\n    skills_text = \"Always verify table and column names with SHOW TABLES and DESCRIBE before writing queries. Quote identifiers with backticks, not single quotes.\"\n    return {\"skills\": [{\"text\": skills_text}], \"tool_hint\": tool_hint}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def update_mutation_state(ctx, nb, action, state):\n    query = action.get(\"query\", \"\")\n    query_upper = query.upper()\n    is_mutation = query_upper.startswith(\"UPDATE\") or query_upper.startswith(\"INSERT\") or query_upper.startswith(\"DELETE\")\n    if is_mutation:\n        nb[\"mutation_attempted\"] = True\n        if not state.get(\"last_result_was_error\"):\n            nb[\"mutation_needs_verification\"] = True\n            nb[\"mutation_verified\"] = False\n        else:\n            nb[\"mutation_needs_verification\"] = False\n\ndef update_schema_state(ctx, nb, predicates):\n    if predicates.get(\"unknown_column_error\") or predicates.get(\"syntax_error\"):\n        nb[\"need_schema_probe\"] = True\n        nb[\"fixing_unknown_column\"] = True\n    if predicates.get(\"last_result_error\"):\n        nb[\"last_error_was_quoting\"] = True\n\ndef hook(ctx, nb):\n    action = ctx.get(\"action\", {})\n    state = ctx.get(\"state\", {})\n    predicates = ctx.get(\"predicates\", {})\n    update_schema_state(ctx, nb, predicates)\n    if action.get(\"tool\") == \"execute_sql\":\n        update_mutation_state(ctx, nb, action, state)\n    if action.get(\"tool\") == \"execute_sql\" and nb.get(\"mutation_needs_verification\"):\n        if not state.get(\"last_result_was_error\"):\n            nb[\"mutation_verified\"] = True\n            nb[\"mutation_needs_verification\"] = False\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    action = ctx.get(\"action\", {})\n    predicates = ctx.get(\"predicates\", {})\n    task = ctx.get(\"task\", {})\n    last_hint = nb.get(\"last_hint\", \"\")\n    if predicates.get(\"unknown_column_error\") or predicates.get(\"syntax_error\"):\n        hint_msg = \"Schema error detected. Use SHOW TABLES to list tables, then DESCRIBE `table_name` to see exact column names. Use backticks for names with spaces or special characters.\"\n        if hint_msg != last_hint:\n            nb[\"last_hint\"] = hint_msg\n            return {\"message\": hint_msg}\n    if action.get(\"tool\") == \"commit_final_answer\":\n        is_mutation_task = task.get(\"task_type\", \"\") in [\"update\", \"insert\", \"delete\"] or predicates.get(\"mutation_task\")\n        if is_mutation_task and nb.get(\"mutation_attempted\") and not nb.get(\"mutation_verified\"):\n            hint_msg = \"Verify mutation succeeded with a SELECT query before committing. Check that the data was actually updated or inserted.\"\n            if hint_msg != last_hint:\n                nb[\"last_hint\"] = hint_msg\n                return {\"message\": hint_msg}\n    if nb.get(\"need_schema_probe\") and action.get(\"tool\") == \"execute_sql\":\n        query = action.get(\"query\", \"\")\n        query_upper = query.upper()\n        if \"DESCRIBE\" not in query_upper and \"SHOW\" not in query_upper:\n            hint_msg = \"Consider probing schema first with DESCRIBE `table_name` to verify exact column names before writing queries.\"\n            if hint_msg != last_hint:\n                nb[\"last_hint\"] = hint_msg\n                return {\"message\": hint_msg}\n    return None"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block buy now if required color/size/material are missing or price over budget",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    if ctx.action.tool == \"click_action\" and ctx.action.value and ctx.action.value.lower() == \"buy now\":\n        if ctx.predicates.product_price_over_budget:\n            return {\"kind\": \"block_and_prompt\", \"message\": \"The product price is over your budget. Please go back to search for a cheaper product.\"}\n        missing = []\n        try:\n            if ctx.task.required_color:\n                if ctx.webshop.selected_attributes.get(\"color\") != ctx.task.required_color:\n                    missing.append(\"color: \" + ctx.task.required_color)\n        except Exception:\n            pass\n        try:\n            if ctx.task.required_size:\n                if ctx.webshop.selected_attributes.get(\"size\") != ctx.task.required_size:\n                    missing.append(\"size: \" + ctx.task.required_size)\n        except Exception:\n            pass\n        try:\n            if ctx.task.required_material:\n                if ctx.webshop.selected_attributes.get(\"material\") != ctx.task.required_material:\n                    missing.append(\"material: \" + ctx.task.required_material)\n        except Exception:\n            pass\n        if missing:\n            msg = \"Missing required options: \" + \", \".join(missing) + \". Please select them before buying.\"\n            return {\"kind\": \"block_and_prompt\", \"message\": msg}\n    return None"
+    }
+  ]
+}

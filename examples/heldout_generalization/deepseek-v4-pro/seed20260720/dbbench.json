@@ -1,0 +1,27 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Teach the agent to commit actual data values for mutation tasks instead of generic success messages, and remind about backticks for identifiers with spaces.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    skills = [{\"text\": \"For INSERT, UPDATE, or DELETE tasks, your final answer should be the actual data values, not a generic success message. After executing a mutation, verify the changes by selecting the affected rows, then commit the relevant data.\"}]\n    tool_hint = \"Remember to use backticks around table and column names that contain spaces or special characters, e.g., `table name`.\"\n    return {\"skills\": skills, \"tool_hint\": tool_hint}\n"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    action = ctx.get(\"action\", {})\n    state = ctx.get(\"state\", {})\n    if action.get(\"tool\") == \"execute_sql\":\n        sql = action.get(\"query\", \"\")\n        result = state.get(\"last_result\", \"\")\n        error = state.get(\"last_error_kind\", \"\")\n        if not error and isinstance(result, list) and len(result) == 0:\n            sql_upper = sql.strip().upper()\n            if sql_upper.startswith(\"INSERT\") or sql_upper.startswith(\"UPDATE\") or sql_upper.startswith(\"DELETE\"):\n                nb[\"mutation_executed\"] = True\n                nb[\"mutation_type\"] = sql_upper.split()[0]\n                nb[\"mutation_verified\"] = False\n        if sql_upper.startswith(\"SELECT\") and nb.get(\"mutation_executed\") and not nb.get(\"mutation_verified\"):\n            nb[\"mutation_verified\"] = True\n    return None\n"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    if nb.get(\"mutation_executed\") and not nb.get(\"mutation_verified\") and not nb.get(\"committed\"):\n        return {\"message\": \"You have executed a mutation but not yet verified it. Please run a SELECT query to verify the affected rows, then commit the actual data values.\"}\n    state = ctx.get(\"state\", {})\n    error_kind = state.get(\"last_error_kind\", \"\")\n    if error_kind in (\"syntax\", \"unknown_col\") and not nb.get(\"hinted_backticks\"):\n        nb[\"hinted_backticks\"] = True\n        return {\"message\": \"Your SQL encountered an error. If your table or column names contain spaces or special characters, remember to wrap them in backticks, e.g., `table name`.\"}\n    return None\n"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def is_success_message(text):\n    if not isinstance(text, str):\n        return False\n    if any(ch.isdigit() for ch in text):\n        return False\n    pattern = r'(successfully|inserted|updated|deleted|record|row added|update completed|record inserted|commit)'\n    return re.search(pattern, text, re.IGNORECASE) is not None\n\ndef hook(ctx, nb):\n    action = ctx.get(\"action\", {})\n    if action.get(\"tool\") == \"commit_final_answer\":\n        predicates = ctx.get(\"predicates\", {})\n        if predicates.get(\"mutation_task\"):\n            answers = action.get(\"answers\", [])\n            if answers and all(isinstance(a, str) and is_success_message(a) for a in answers):\n                if not nb.get(\"blocked_commit_count\"):\n                    nb[\"blocked_commit_count\"] = 1\n                else:\n                    nb[\"blocked_commit_count\"] += 1\n                if nb[\"blocked_commit_count\"] <= 2:\n                    return {\"kind\": \"block_and_prompt\", \"message\": \"Your answer appears to be a generic success message. For mutation tasks, you must provide the actual data values (e.g., the inserted row, the updated row, or the deleted row). Please verify the mutation with a SELECT and then commit the relevant data values.\"}\n    return None\n"
+    }
+  ]
+}

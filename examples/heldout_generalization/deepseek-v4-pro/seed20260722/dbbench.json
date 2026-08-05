@@ -1,0 +1,17 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Block commit of natural-language descriptions and remind about backtick quoting for identifiers with spaces.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    return {\n        \"skills\": [\n            {\n                \"text\": \"Always enclose table and column names that contain spaces or special characters in backticks (e.g., `My Table`).\"\n            }\n        ],\n        \"tool_hint\": \"Use backticks for identifiers with spaces.\"\n    }\n"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def description_keywords():\n    return [\n        \"successfully\", \"completed\", \"inserted\", \"updated\", \"modified\",\n        \"record has been\", \"the table\", \"data has been\", \"row has been\",\n        \"set to\", \"changed to\", \"added to\", \"deleted from\",\n        \"no such\", \"does not exist\", \"does not exists\",\n        \"the answer is\", \"the result is\", \"query returned\",\n        \"select \", \"update \", \"insert \", \"delete \",\n        \"the \", \" is \", \" was \", \" has \", \" are \", \" will \",\n        \"field \", \"column \", \"value \", \"record \"\n    ]\n\ndef is_description(text):\n    if not text or not isinstance(text, str):\n        return False\n    lower = text.lower()\n    if len(text) > 120 and \" \" in text:\n        return True\n    for kw in description_keywords():\n        if kw in lower:\n            return True\n    return False\n\ndef has_description_answers(answers):\n    for ans in answers:\n        if is_description(ans):\n            return True\n    return False\n\ndef hook(ctx, nb):\n    if ctx[\"action\"][\"tool\"] == \"commit_final_answer\":\n        answers = ctx[\"action\"][\"answers\"]\n        if has_description_answers(answers):\n            return {\n                \"kind\": \"block_and_prompt\",\n                \"message\": \"Your answer looks like a natural-language description instead of the actual data values. Provide the raw data values as a list of strings (e.g., [\\\"value1\\\", \\\"value2\\\", ...]) or an empty list if no data matches. Do not include explanatory text.\"\n            }\n    return None\n"
+    }
+  ]
+}

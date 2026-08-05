@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature Buy Now when required product options are still unselected.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    try:\n        if ctx['action']['tool'] != 'click_action':\n            return None\n        val = ctx['action']['value_normalized']\n    except Exception:\n        return None\n    if val != 'buy now':\n        return None\n    try:\n        over_budget = ctx['predicates']['product_price_over_budget']\n        missing_options = ctx['predicates']['required_options_unselected']\n    except Exception:\n        over_budget = False\n        missing_options = False\n    if over_budget:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy this item because its current price is over the stated budget. Go back to search results or use Back to Search and choose an in-budget product.'}\n    if missing_options:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy yet. A required product option from the instruction is still unselected on this page, such as color, size, material, flavor, scent, or pack count. Choose the matching visible option first; if no option matches, use Back to Search instead of buying.'}\n    return None"
+    }
+  ]
+}

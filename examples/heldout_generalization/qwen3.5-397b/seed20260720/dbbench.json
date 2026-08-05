@@ -1,0 +1,27 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "SQL identifier quoting guidance with schema discovery and mutation verification",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    tool_hint = 'When writing SQL, wrap table and column names containing spaces or special characters in backticks. Example: SELECT * FROM `Table Name` WHERE `Column Name` = value. Use SHOW TABLES to discover exact table names. Use DESCRIBE `table_name` to see column names and types. For INSERT/UPDATE/DELETE tasks, execute the mutation SQL first, then verify with SELECT before committing your answer.'\n    skills = [{'text': 'Always quote MySQL identifiers with spaces or special characters using backticks'}]\n    return {'skills': skills, 'tool_hint': tool_hint}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    predicates = ctx.get('predicates', {})\n    state = ctx.get('state', {})\n    if predicates.get('syntax_error', False) or predicates.get('unknown_column_error', False):\n        nb['need_schema_probe'] = True\n    if predicates.get('last_result_empty', False):\n        nb['fixing_empty_result'] = True\n    task = ctx.get('task', {})\n    if task.get('task_type') == 'mutation' or predicates.get('mutation_task', False):\n        if not state.get('mutation_attempted', False):\n            nb['mutation_needs_execution'] = True\n            nb['mutation_needs_verification'] = False\n        else:\n            nb['mutation_needs_execution'] = False\n            nb['mutation_needs_verification'] = True\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    if nb.get('need_schema_probe', False):\n        nb['need_schema_probe'] = False\n        return {'message': 'Schema error detected. Run SHOW TABLES to find exact table names, then DESCRIBE `table_name` to see column names. Wrap names with spaces in backticks.'}\n    if nb.get('fixing_empty_result', False):\n        nb['fixing_empty_result'] = False\n        return {'message': 'Empty result may indicate wrong table/column names or overly strict conditions. Try DESCRIBE to verify schema, or relax WHERE conditions and check sample rows.'}\n    if nb.get('mutation_needs_verification', False):\n        nb['mutation_needs_verification'] = False\n        return {'message': 'After INSERT/UPDATE/DELETE, run a SELECT query to verify the mutation was applied before committing your final answer.'}\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    action = ctx.get('action', {})\n    predicates = ctx.get('predicates', {})\n    state = ctx.get('state', {})\n    if action.get('tool') == 'commit_final_answer':\n        if predicates.get('mutation_task', False) and not state.get('mutation_attempted', False):\n            return {'kind': 'block_and_prompt', 'message': 'Do not commit before executing the mutation. Run INSERT/UPDATE/DELETE SQL first, then verify with SELECT.'}\n    return None"
+    }
+  ]
+}

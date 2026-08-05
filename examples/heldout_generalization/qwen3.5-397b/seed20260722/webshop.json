@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature buy now when required product attributes remain unselected",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def get_task_requirements(ctx):\n    reqs = []\n    task = ctx.task\n    if hasattr(task, 'required_color') and task.required_color:\n        reqs.append(('color', task.required_color))\n    if hasattr(task, 'required_size') and task.required_size:\n        reqs.append(('size', task.required_size))\n    if hasattr(task, 'required_material') and task.required_material:\n        reqs.append(('material', task.required_material))\n    return reqs\n\ndef find_matching_option(clickables, req_type, req_value):\n    if not clickables:\n        return None\n    req_lower = req_value.lower()\n    for opt in clickables:\n        opt_lower = opt.lower()\n        if req_type == 'size':\n            if req_lower in opt_lower or opt_lower in req_lower:\n                return opt\n        elif req_type == 'color':\n            words = req_lower.split()\n            match_count = sum(1 for w in words if w in opt_lower and len(w) > 2)\n            if match_count >= 1:\n                return opt\n        elif req_type == 'material':\n            if req_lower in opt_lower or opt_lower in req_lower:\n                return opt\n    return None\n\ndef hook(ctx, nb):\n    action = ctx.action\n    if not action or action.value_normalized != 'buy now':\n        return None\n    state = ctx.state\n    if state.page_type != 'product_detail':\n        return None\n    if not ctx.predicates.required_options_unselected:\n        return None\n    reqs = get_task_requirements(ctx)\n    if not reqs:\n        return None\n    clickables = state.clickables\n    if not clickables:\n        return None\n    for req_type, req_value in reqs:\n        match = find_matching_option(clickables, req_type, req_value)\n        if match:\n            return {'kind': 'force_action', 'action': 'click[' + match + ']', 'message': 'Select required ' + req_type + ' before purchasing'}\n    return None"
+    }
+  ]
+}

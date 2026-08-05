@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block buy‑now when required product options are still unselected, prompting the agent to select the missing attributes.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    if ctx.action.tool == 'click_action' and ctx.action.value_normalized == 'buy now':\n        if ctx.predicates.required_options_unselected:\n            reqs = []\n            if ctx.task.required_color:\n                reqs.append('color: ' + ctx.task.required_color)\n            if ctx.task.required_size:\n                reqs.append('size: ' + ctx.task.required_size)\n            if ctx.task.required_material:\n                reqs.append('material: ' + ctx.task.required_material)\n            if reqs:\n                msg = 'You must select the required options before buying: ' + ', '.join(reqs) + '.'\n            else:\n                msg = 'You must select the required options before buying.'\n            return {'kind': 'block_and_prompt', 'message': msg}\n    return None"
+    }
+  ]
+}

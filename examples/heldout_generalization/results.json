@@ -1,0 +1,845 @@
+{
+  "protocol": "random10_failure_evidence_one_patch_full_split",
+  "description": "Each editor sees the same 10 sampled failures per benchmark, writes one benchmark-level patch, and that patch is applied to the whole test split. The headline metric excludes the 10 evidence tasks.",
+  "target_agent": "Qwen3.5-9B (frozen, vanilla)",
+  "evidence_per_benchmark": 10,
+  "held_out_tasks": {
+    "webshop": 490,
+    "alfworld": 490,
+    "dbbench": 290,
+    "pooled": 1270
+  },
+  "seeds": [
+    20260720,
+    20260721,
+    20260722
+  ],
+  "invalid_patch_policy": "A patch the validator rejects is scored as no-patch: the target reruns unmodified and the delta is 0. No file is shipped for those cases; the rejection reason is recorded under validation_error.",
+  "evidence_task_ids": {
+    "20260720": {
+      "webshop": [
+        63,
+        106,
+        217,
+        225,
+        234,
+        250,
+        256,
+        287,
+        341,
+        433
+      ],
+      "alfworld": [
+        69,
+        120,
+        196,
+        273,
+        283,
+        290,
+        315,
+        320,
+        362,
+        443
+      ],
+      "dbbench": [
+        40,
+        63,
+        114,
+        120,
+        124,
+        131,
+        133,
+        145,
+        173,
+        223
+      ]
+    },
+    "20260721": {
+      "webshop": [
+        8,
+        142,
+        157,
+        205,
+        276,
+        288,
+        291,
+        322,
+        338,
+        447
+      ],
+      "alfworld": [
+        6,
+        104,
+        158,
+        194,
+        260,
+        344,
+        363,
+        369,
+        417,
+        439
+      ],
+      "dbbench": [
+        3,
+        71,
+        84,
+        111,
+        143,
+        145,
+        150,
+        171,
+        231,
+        296
+      ]
+    },
+    "20260722": {
+      "webshop": [
+        41,
+        52,
+        59,
+        82,
+        183,
+        289,
+        290,
+        397,
+        415,
+        489
+      ],
+      "alfworld": [
+        39,
+        51,
+        63,
+        95,
+        227,
+        260,
+        366,
+        367,
+        377,
+        391
+      ],
+      "dbbench": [
+        35,
+        38,
+        40,
+        51,
+        101,
+        150,
+        154,
+        207,
+        217,
+        257
+      ]
+    }
+  },
+  "editors": {
+    "harness-r1": {
+      "display_name": "Harness-R1 (RL, iter143)",
+      "valid_patches": "9/9",
+      "pooled_held_out": {
+        "tasks": 1270,
+        "baseline_pass_per_seed": [
+          550,
+          550,
+          549
+        ],
+        "patched_pass_per_seed": [
+          656,
+          685,
+          648
+        ],
+        "delta_pass_per_seed": [
+          106,
+          135,
+          99
+        ],
+        "delta_pass_mean": 113.33,
+        "delta_pass_sample_std": 19.09,
+        "delta_pass_rate_pp_mean": 8.92,
+        "delta_pass_rate_pp_sample_std": 1.5
+      },
+      "per_benchmark": {
+        "webshop": {
+          "held_out_tasks": 490,
+          "valid_patches": 3,
+          "delta_pass_per_seed": [
+            48,
+            40,
+            46
+          ],
+          "delta_pass_mean": 44.67,
+          "delta_pass_sample_std": 4.16,
+          "delta_pass_rate_pp_mean": 9.12,
+          "delta_pass_rate_pp_sample_std": 0.85
+        },
+        "alfworld": {
+          "held_out_tasks": 490,
+          "valid_patches": 3,
+          "delta_pass_per_seed": [
+            43,
+            82,
+            39
+          ],
+          "delta_pass_mean": 54.67,
+          "delta_pass_sample_std": 23.76,
+          "delta_pass_rate_pp_mean": 11.16,
+          "delta_pass_rate_pp_sample_std": 4.85
+        },
+        "dbbench": {
+          "held_out_tasks": 290,
+          "valid_patches": 3,
+          "delta_pass_per_seed": [
+            15,
+            13,
+            14
+          ],
+          "delta_pass_mean": 14.0,
+          "delta_pass_sample_std": 1.0,
+          "delta_pass_rate_pp_mean": 4.83,
+          "delta_pass_rate_pp_sample_std": 0.34
+        }
+      },
+      "per_seed": {
+        "20260720": {
+          "webshop": {
+            "patch_file": "harness-r1/seed20260720/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "0efc5a41dfbcd834a1b9ac27a85b9b0ce16b764178e2710f9f7b7ee6d7fc3b3e",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 206,
+              "delta_pass": 48,
+              "rescued_failures": 50,
+              "regressed_successes": 2
+            }
+          },
+          "alfworld": {
+            "patch_file": "harness-r1/seed20260720/alfworld.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "d89e34f0602342331fbbb8a368df3e910ed3fd2ba00a4ed0fb750fef208282b3",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 251,
+              "delta_pass": 43,
+              "rescued_failures": 102,
+              "regressed_successes": 59
+            }
+          },
+          "dbbench": {
+            "patch_file": "harness-r1/seed20260720/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "0b397ac101517300c4f0e4ad9e375bf47b6cb60feb604377ade4956a7394dd21",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 184,
+              "patched_pass": 199,
+              "delta_pass": 15,
+              "rescued_failures": 22,
+              "regressed_successes": 7
+            }
+          }
+        },
+        "20260721": {
+          "webshop": {
+            "patch_file": "harness-r1/seed20260721/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "65a030bf1e5e61208d880a8cc709008bfc57660bdb81f529ff7edd98e3d25d83",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 198,
+              "delta_pass": 40,
+              "rescued_failures": 46,
+              "regressed_successes": 6
+            }
+          },
+          "alfworld": {
+            "patch_file": "harness-r1/seed20260721/alfworld.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "1c911c973e2ebcdd890b45f947a31d24b12043cb9fb1c348115c9dd227fa17a0",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 290,
+              "delta_pass": 82,
+              "rescued_failures": 129,
+              "regressed_successes": 47
+            }
+          },
+          "dbbench": {
+            "patch_file": "harness-r1/seed20260721/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "7a42788a9687783b759b57cf3346354b3c63a452645adf770fed8024afea9b1d",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 184,
+              "patched_pass": 197,
+              "delta_pass": 13,
+              "rescued_failures": 21,
+              "regressed_successes": 8
+            }
+          }
+        },
+        "20260722": {
+          "webshop": {
+            "patch_file": "harness-r1/seed20260722/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "10a8a977f8e792f825b8e3165b7d3efa0971af0097f09def31ce7d29972ddb1c",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 204,
+              "delta_pass": 46,
+              "rescued_failures": 50,
+              "regressed_successes": 4
+            }
+          },
+          "alfworld": {
+            "patch_file": "harness-r1/seed20260722/alfworld.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "38ef9c8003a36bd8eaa80a603b302fe966315b01ed25b7e68df9195736c0dada",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 247,
+              "delta_pass": 39,
+              "rescued_failures": 100,
+              "regressed_successes": 61
+            }
+          },
+          "dbbench": {
+            "patch_file": "harness-r1/seed20260722/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "5e69c6023eb2cfaf59f349c2d19d8950d0dd42b60d3a752ddc961f87d228277b",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 183,
+              "patched_pass": 197,
+              "delta_pass": 14,
+              "rescued_failures": 23,
+              "regressed_successes": 9
+            }
+          }
+        }
+      }
+    },
+    "qwen3.5-397b": {
+      "display_name": "Qwen3.5-397B",
+      "valid_patches": "8/9",
+      "pooled_held_out": {
+        "tasks": 1270,
+        "baseline_pass_per_seed": [
+          550,
+          550,
+          549
+        ],
+        "patched_pass_per_seed": [
+          497,
+          462,
+          525
+        ],
+        "delta_pass_per_seed": [
+          -53,
+          -88,
+          -24
+        ],
+        "delta_pass_mean": -55.0,
+        "delta_pass_sample_std": 32.05,
+        "delta_pass_rate_pp_mean": -4.33,
+        "delta_pass_rate_pp_sample_std": 2.52
+      },
+      "per_benchmark": {
+        "webshop": {
+          "held_out_tasks": 490,
+          "valid_patches": 3,
+          "delta_pass_per_seed": [
+            -68,
+            -71,
+            -2
+          ],
+          "delta_pass_mean": -47.0,
+          "delta_pass_sample_std": 39.0,
+          "delta_pass_rate_pp_mean": -9.59,
+          "delta_pass_rate_pp_sample_std": 7.96
+        },
+        "alfworld": {
+          "held_out_tasks": 490,
+          "valid_patches": 2,
+          "delta_pass_per_seed": [
+            0,
+            -12,
+            -23
+          ],
+          "delta_pass_mean": -11.67,
+          "delta_pass_sample_std": 11.5,
+          "delta_pass_rate_pp_mean": -2.38,
+          "delta_pass_rate_pp_sample_std": 2.35
+        },
+        "dbbench": {
+          "held_out_tasks": 290,
+          "valid_patches": 3,
+          "delta_pass_per_seed": [
+            15,
+            -5,
+            1
+          ],
+          "delta_pass_mean": 3.67,
+          "delta_pass_sample_std": 10.26,
+          "delta_pass_rate_pp_mean": 1.26,
+          "delta_pass_rate_pp_sample_std": 3.54
+        }
+      },
+      "per_seed": {
+        "20260720": {
+          "webshop": {
+            "patch_file": "qwen3.5-397b/seed20260720/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "fd1851cd991bc3aacf8b2ab47bc95efb37ff197908f827ab978bb364ccf42694",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 90,
+              "delta_pass": -68,
+              "rescued_failures": 2,
+              "regressed_successes": 70
+            }
+          },
+          "alfworld": {
+            "patch_file": null,
+            "valid": false,
+            "hooks": [],
+            "validation_error": "PatchValidationError('hook uses forbidden syntax: Import')",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 208,
+              "delta_pass": 0,
+              "rescued_failures": 0,
+              "regressed_successes": 0
+            }
+          },
+          "dbbench": {
+            "patch_file": "qwen3.5-397b/seed20260720/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "4ceb98ccdb2f8d5b9d6648369d3a234f7625658242fbb650bec5b0840174d2ed",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 184,
+              "patched_pass": 199,
+              "delta_pass": 15,
+              "rescued_failures": 21,
+              "regressed_successes": 6
+            }
+          }
+        },
+        "20260721": {
+          "webshop": {
+            "patch_file": "qwen3.5-397b/seed20260721/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "9dfc6de33b21e499d486dd97ac77891b333ff4b7d821f0742561b812f04a6840",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 87,
+              "delta_pass": -71,
+              "rescued_failures": 0,
+              "regressed_successes": 71
+            }
+          },
+          "alfworld": {
+            "patch_file": "qwen3.5-397b/seed20260721/alfworld.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint"
+            ],
+            "validation_error": null,
+            "patch_sha256": "e69e3a229b2f585c036f262c25843ca562ab2a8f8b68ba45d414f23c488ec7f3",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 196,
+              "delta_pass": -12,
+              "rescued_failures": 47,
+              "regressed_successes": 59
+            }
+          },
+          "dbbench": {
+            "patch_file": "qwen3.5-397b/seed20260721/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint"
+            ],
+            "validation_error": null,
+            "patch_sha256": "74e07365e4d6764c197aa2846880beebd584035f192154ea8579480f20889d0f",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 184,
+              "patched_pass": 179,
+              "delta_pass": -5,
+              "rescued_failures": 6,
+              "regressed_successes": 11
+            }
+          }
+        },
+        "20260722": {
+          "webshop": {
+            "patch_file": "qwen3.5-397b/seed20260722/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "0763d4437830b30a55bb987e13abc6eba8f354bdab23cf17124dc0378b8897fd",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 156,
+              "delta_pass": -2,
+              "rescued_failures": 2,
+              "regressed_successes": 4
+            }
+          },
+          "alfworld": {
+            "patch_file": "qwen3.5-397b/seed20260722/alfworld.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "2e6c4b99c5875e7253103450ac14540aae18bcbc2405d01b9b22d1ed2d58f91d",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 185,
+              "delta_pass": -23,
+              "rescued_failures": 39,
+              "regressed_successes": 62
+            }
+          },
+          "dbbench": {
+            "patch_file": "qwen3.5-397b/seed20260722/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint"
+            ],
+            "validation_error": null,
+            "patch_sha256": "57e069979412f64818feee42df7986fbe45d095d4205d15ca9605f072033c390",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 183,
+              "patched_pass": 184,
+              "delta_pass": 1,
+              "rescued_failures": 12,
+              "regressed_successes": 11
+            }
+          }
+        }
+      }
+    },
+    "deepseek-v4-pro": {
+      "display_name": "DeepSeek-V4-Pro",
+      "valid_patches": "6/9",
+      "pooled_held_out": {
+        "tasks": 1270,
+        "baseline_pass_per_seed": [
+          550,
+          550,
+          549
+        ],
+        "patched_pass_per_seed": [
+          522,
+          515,
+          596
+        ],
+        "delta_pass_per_seed": [
+          -28,
+          -35,
+          47
+        ],
+        "delta_pass_mean": -5.33,
+        "delta_pass_sample_std": 45.46,
+        "delta_pass_rate_pp_mean": -0.42,
+        "delta_pass_rate_pp_sample_std": 3.58
+      },
+      "per_benchmark": {
+        "webshop": {
+          "held_out_tasks": 490,
+          "valid_patches": 3,
+          "delta_pass_per_seed": [
+            -34,
+            48,
+            42
+          ],
+          "delta_pass_mean": 18.67,
+          "delta_pass_sample_std": 45.71,
+          "delta_pass_rate_pp_mean": 3.81,
+          "delta_pass_rate_pp_sample_std": 9.33
+        },
+        "alfworld": {
+          "held_out_tasks": 490,
+          "valid_patches": 1,
+          "delta_pass_per_seed": [
+            0,
+            -83,
+            0
+          ],
+          "delta_pass_mean": -27.67,
+          "delta_pass_sample_std": 47.92,
+          "delta_pass_rate_pp_mean": -5.65,
+          "delta_pass_rate_pp_sample_std": 9.78
+        },
+        "dbbench": {
+          "held_out_tasks": 290,
+          "valid_patches": 2,
+          "delta_pass_per_seed": [
+            6,
+            0,
+            5
+          ],
+          "delta_pass_mean": 3.67,
+          "delta_pass_sample_std": 3.21,
+          "delta_pass_rate_pp_mean": 1.26,
+          "delta_pass_rate_pp_sample_std": 1.11
+        }
+      },
+      "per_seed": {
+        "20260720": {
+          "webshop": {
+            "patch_file": "deepseek-v4-pro/seed20260720/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "36e79d27c46925eeded18af1fc4a9d672ac66b450b9f9b09f4bd178c132b8a45",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 124,
+              "delta_pass": -34,
+              "rescued_failures": 14,
+              "regressed_successes": 48
+            }
+          },
+          "alfworld": {
+            "patch_file": null,
+            "valid": false,
+            "hooks": [],
+            "validation_error": "PatchValidationError('patch.actions must be a non-empty list')",
+            "note": "the response emitted YAML inside a malformed '<>' tag instead of the required JSON <patch> block, so no patch object could be parsed",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 208,
+              "delta_pass": 0,
+              "rescued_failures": 0,
+              "regressed_successes": 0
+            }
+          },
+          "dbbench": {
+            "patch_file": "deepseek-v4-pro/seed20260720/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "a7c3d44d6d46aecc6c06d4b488fe9172075c5f6d88798557ae69364c10a367fb",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 184,
+              "patched_pass": 190,
+              "delta_pass": 6,
+              "rescued_failures": 18,
+              "regressed_successes": 12
+            }
+          }
+        },
+        "20260721": {
+          "webshop": {
+            "patch_file": "deepseek-v4-pro/seed20260721/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "7c10a33d2413f3be8bce2513878e79f0d3b3894ffbaf0957c9ff0bae67643377",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 206,
+              "delta_pass": 48,
+              "rescued_failures": 51,
+              "regressed_successes": 3
+            }
+          },
+          "alfworld": {
+            "patch_file": "deepseek-v4-pro/seed20260721/alfworld.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_post_step",
+              "make_pre_hint"
+            ],
+            "validation_error": null,
+            "patch_sha256": "a01e8623eb0727c584dbf75e6fbe49382400456b3ca6bfb0c487c6cddbffa859",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 125,
+              "delta_pass": -83,
+              "rescued_failures": 47,
+              "regressed_successes": 130
+            }
+          },
+          "dbbench": {
+            "patch_file": null,
+            "valid": false,
+            "hooks": [],
+            "validation_error": "PatchValidationError('hook uses forbidden syntax: Import')",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 184,
+              "patched_pass": 184,
+              "delta_pass": 0,
+              "rescued_failures": 0,
+              "regressed_successes": 0
+            }
+          }
+        },
+        "20260722": {
+          "webshop": {
+            "patch_file": "deepseek-v4-pro/seed20260722/webshop.json",
+            "valid": true,
+            "hooks": [
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "210885ec0c3d470dae3eeaf39f1d975fa745cce767ec231a92984fc638ea5236",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 158,
+              "patched_pass": 200,
+              "delta_pass": 42,
+              "rescued_failures": 48,
+              "regressed_successes": 6
+            }
+          },
+          "alfworld": {
+            "patch_file": null,
+            "valid": false,
+            "hooks": [],
+            "validation_error": "PatchValidationError('hook code may contain at most 5 helper functions')",
+            "held_out": {
+              "tasks": 490,
+              "baseline_pass": 208,
+              "patched_pass": 208,
+              "delta_pass": 0,
+              "rescued_failures": 0,
+              "regressed_successes": 0
+            }
+          },
+          "dbbench": {
+            "patch_file": "deepseek-v4-pro/seed20260722/dbbench.json",
+            "valid": true,
+            "hooks": [
+              "on_init",
+              "on_before_action"
+            ],
+            "validation_error": null,
+            "patch_sha256": "0ea70719a6eb7108489501b59866ab76468bda88093a71953a2cb7e1a761e4b7",
+            "held_out": {
+              "tasks": 290,
+              "baseline_pass": 183,
+              "patched_pass": 188,
+              "delta_pass": 5,
+              "rescued_failures": 13,
+              "regressed_successes": 8
+            }
+          }
+        }
+      }
+    }
+  }
+}

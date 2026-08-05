@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature Buy Now when required product options are still unselected.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    try:\n        if ctx['action']['tool'] != 'click_action':\n            return None\n        val = ctx['action']['value_normalized']\n    except Exception:\n        return None\n    if val != 'buy now':\n        return None\n    try:\n        need = ctx['predicates']['required_options_unselected']\n    except Exception:\n        need = False\n    if need:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy yet: this product page still has a required variant choice unselected. Choose the visible option that matches the instruction, such as color, size, material, style, or count, then use Buy Now.'}\n    return None"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block buy-now actions when the product price exceeds the budget or required options (color, size, material) are not selected, guiding the agent to correct the issue before purchase.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    if ctx.action.value_normalized == 'buy now':\n        messages = []\n        if ctx.predicates.product_price_over_budget:\n            messages.append('The product price exceeds the budget. Please go back to search and find a cheaper product.')\n        if ctx.predicates.required_options_unselected:\n            messages.append('You haven\\'t selected all required options (e.g., color, size, material). Please select the correct options before buying.')\n        if messages:\n            return {'kind': 'block_and_prompt', 'message': ' '.join(messages)}\n    return None"
+    }
+  ]
+}

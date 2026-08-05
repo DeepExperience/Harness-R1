@@ -76,7 +76,10 @@ patch contract lives in
 [`harness_r1_patch.py`](code/life-harness/AgentBench/scripts/harness_r1_patch.py)
 (`schema_prompt`, `normalize_patch`) and the sandbox rules in
 [`code_runner.py`](code/life-harness/AgentBench/src/server/harness/code_runner.py);
-[`examples/webshop_patch.json`](examples/webshop_patch.json) is a complete patch.
+[`examples/webshop_patch.json`](examples/webshop_patch.json) is a complete patch;
+[`examples/heldout_generalization/`](examples/heldout_generalization) holds 23
+more, written by the trained engineer and by two frontier editors on the same
+evidence, with the held-out result each one earned.
 
 ## Highlights
 
@@ -142,16 +145,22 @@ the three regressions are all ≤ 2.0 pp.
 
 ### Held-out tasks and lifecycle positions
 
-From the **same 10 failures**, each engineer writes one patch applied to all
-remaining tasks (1,270 held-out, three seeds). Harness-R1 gains **+8.9 ± 1.5 pp**
-and is positive on every seed; both frontier engineers average negative.
-Disabling one lifecycle position at a time, pre-action (−3.9) and post-feedback
-(−3.3) dominate, and which one dominates is environment-dependent.
+From the **same 10 sampled failures per benchmark**, each engineer writes one
+benchmark-level patch applied to all remaining tasks (1,270 held-out, three
+seeds). Harness-R1 gains **+8.9 ± 1.5 pp** and is positive on every seed; both
+frontier engineers average negative. Disabling one lifecycle position at a time,
+pre-action (−3.9) and post-feedback (−3.3) dominate, and which one dominates is
+environment-dependent.
 
 <div align="center">
   <img src="assets/heldout.png" alt="Held-out task generalization" width="49%">
   <img src="assets/lifecycle.png" alt="Lifecycle position ablation" width="49%">
 </div>
+
+> [!TIP]
+> All 27 patches from this experiment are in
+> [`examples/heldout_generalization/`](examples/heldout_generalization), with the
+> held-out counts behind the numbers above.
 
 ## Model Checkpoints
 
@@ -201,7 +210,9 @@ Harness-R1/
 │   └── sft/                           cold-start engineer SFT and agent SFT
 ├── demo/                              offline demo (no endpoints or benchmark assets)
 ├── docs/BENCHMARK_SETUP.md            installing the benchmark environments
-├── examples/webshop_patch.json        a complete validated patch
+├── examples/
+│   ├── webshop_patch.json             a complete validated patch
+│   └── heldout_generalization/        23 patches from 3 editors + held-out results
 ├── scripts/                           launch and check wrappers
 └── tests/                             protocol and sandbox unit tests
 ```

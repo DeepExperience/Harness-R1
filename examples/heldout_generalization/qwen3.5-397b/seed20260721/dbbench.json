@@ -1,0 +1,22 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Add hooks for SQL identifier quoting guidance, error state tracking, and empty result recovery",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def helper_check_space_names(name):\n    if name is None:\n        return False\n    return ' ' in str(name) or '-' in str(name)\n\ndef hook(ctx, nb):\n    task = ctx.get('task', {})\n    target_table = task.get('target_table', '')\n    hint_text = ''\n    if helper_check_space_names(target_table):\n        hint_text = 'Table or column names may contain spaces. Always use backticks around identifiers like `Table Name` and `Column Name` in SQL queries.'\n        return {'skills': [{'text': hint_text}], 'tool_hint': hint_text}\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def helper_update_error_state(ctx, nb):\n    predicates = ctx.get('predicates', {})\n    state = ctx.get('state', {})\n    if predicates.get('syntax_error', False):\n        nb['fixing_syntax'] = True\n        nb['syntax_error_count'] = nb.get('syntax_error_count', 0) + 1\n    if predicates.get('unknown_column_error', False):\n        nb['fixing_unknown_column'] = True\n        nb['unknown_col_count'] = nb.get('unknown_col_count', 0) + 1\n    if predicates.get('last_result_empty', False):\n        nb['empty_streak'] = nb.get('empty_streak', 0) + 1\n    else:\n        nb['empty_streak'] = 0\n    if state.get('last_result_was_error', False) is False and state.get('last_result') is not None:\n        nb['schema_probed'] = True\n    return None\n\ndef hook(ctx, nb):\n    helper_update_error_state(ctx, nb)\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def helper_build_recovery_hint(ctx, nb):\n    predicates = ctx.get('predicates', {})\n    task = ctx.get('task', {})\n    target_table = task.get('target_table', 'table')\n    safe_table = '`' + target_table + '`' if ' ' in target_table else target_table\n    if nb.get('fixing_syntax', False) and nb.get('syntax_error_count', 0) >= 2:\n        return {'message': 'Repeated syntax errors. Verify table exists with SHOW TABLES. Use DESCRIBE ' + safe_table + ' to check exact column names. Wrap all identifiers with spaces in backticks.'}\n    if nb.get('fixing_unknown_column', False):\n        return {'message': 'Unknown column detected. Run DESCRIBE ' + safe_table + ' to see actual column names, then use backticks for columns containing spaces.'}\n    if nb.get('empty_streak', 0) >= 2 and nb.get('schema_probed', False) is False:\n        return {'message': 'Multiple empty results. Probe schema with DESCRIBE ' + safe_table + ' and inspect sample data with SELECT * FROM ' + safe_table + ' LIMIT 5.'}\n    last_hint = nb.get('last_hint', '')\n    new_hint = ''\n    if nb.get('empty_streak', 0) >= 3:\n        new_hint = 'Still getting empty results. Check if filter conditions match actual data format. Try removing WHERE clause to see available values.'\n    if new_hint and new_hint != last_hint:\n        nb['last_hint'] = new_hint\n        return {'message': new_hint}\n    return None\n\ndef hook(ctx, nb):\n    return helper_build_recovery_hint(ctx, nb)"
+    }
+  ]
+}

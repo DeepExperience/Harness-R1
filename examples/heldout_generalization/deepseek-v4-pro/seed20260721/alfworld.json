@@ -1,0 +1,22 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "alfworld",
+  "description": "Add stage tracking and soft guidance to prevent agent looping and aimless wandering. Tracks find_target, take_target, transform, go_destination, put_target states. Injects hints when repeated actions or observations are detected.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'find_target'\n    nb['target_found'] = False\n    nb['target_location'] = None\n    nb['last_action'] = None\n    nb['last_observation'] = None\n    nb['repeated_count'] = 0\n    nb['last_hint_stage'] = None\n    task = ctx.get('task', {})\n    target_type = task.get('target_type', 'object')\n    destination_type = task.get('destination_type', 'container')\n    hint = f'Task: find the {target_type}, pick it up, apply any required transformation, then put it in the {destination_type}. Use look and inventory to track progress.'\n    return {'skills': [], 'tool_hint': hint}\n"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def helper_update_stage(ctx, nb):\n    obs = ctx.get('observation', '')\n    inv = ctx.get('world', {}).get('inventory', [])\n    task = ctx.get('task', {})\n    target_type = task.get('target_type', '')\n    destination_type = task.get('destination_type', '')\n    action = ctx.get('action', {}).get('raw', '')\n    if not obs:\n        return\n    if action == nb.get('last_action') and obs == nb.get('last_observation'):\n        nb['repeated_count'] = nb.get('repeated_count', 0) + 1\n    else:\n        nb['repeated_count'] = 0\n    nb['last_action'] = action\n    nb['last_observation'] = obs\n    if nb['stage'] == 'find_target':\n        if target_type and target_type in inv:\n            nb['stage'] = 'transform'\n            nb['target_found'] = True\n        elif 'take ' + target_type in action and 'from' in action:\n            nb['stage'] = 'take_target'\n    elif nb['stage'] == 'take_target':\n        if target_type and target_type in inv:\n            nb['stage'] = 'transform'\n            nb['target_found'] = True\n    elif nb['stage'] == 'transform':\n        if 'cool' in action or 'heat' in action or 'clean' in action:\n            nb['stage'] = 'go_destination'\n        elif destination_type and destination_type in obs and 'put' in action:\n            nb['stage'] = 'put_target'\n    elif nb['stage'] == 'go_destination':\n        if 'put' in action and destination_type in action:\n            nb['stage'] = 'put_target'\n    elif nb['stage'] == 'put_target':\n        if 'put' in action and destination_type in action:\n            nb['stage'] = 'done'\n    if nb['repeated_count'] >= 3 and nb['stage'] != nb.get('last_hint_stage'):\n        return {'kind': 'inject_hint', 'message': 'You seem stuck. Try looking around or checking inventory to find the ' + target_type + '. Then take it, transform it if needed, and put it in the ' + destination_type + '.'}\n        nb['last_hint_stage'] = nb['stage']\n    return None\n\ndef hook(ctx, nb):\n    try:\n        return helper_update_stage(ctx, nb)\n    except Exception:\n        return None\n"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    try:\n        stage = nb.get('stage', 'find_target')\n        task = ctx.get('task', {})\n        target_type = task.get('target_type', 'object')\n        destination_type = task.get('destination_type', 'container')\n        if stage == 'find_target':\n            return {'message': 'Look for the ' + target_type + '. Explore cabinets and containers.'}\n        elif stage == 'take_target':\n            return {'message': 'Take the ' + target_type + ' when you find it.'}\n        elif stage == 'transform':\n            return {'message': 'Apply the required transformation (cool, heat, clean) to the ' + target_type + '.'}\n        elif stage == 'go_destination':\n            return {'message': 'Go to the ' + destination_type + ' to place the ' + target_type + '.'}\n        elif stage == 'put_target':\n            return {'message': 'Put the ' + target_type + ' in the ' + destination_type + '.'}\n        return None\n    except Exception:\n        return None\n"
+    }
+  ]
+}

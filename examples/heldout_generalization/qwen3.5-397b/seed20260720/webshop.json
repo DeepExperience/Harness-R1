@@ -1,0 +1,12 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature buy_now when required attributes (color/size/material) from task are available as clickables but unselected",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def find_unselected_required(ctx, nb):\n    clickables = ctx.state.clickables\n    task = ctx.task\n    required_color = task.required_color\n    required_size = task.required_size\n    required_material = task.required_material\n    if required_color:\n        for c in clickables:\n            if required_color.lower() in c.lower():\n                return c\n    if required_size:\n        for c in clickables:\n            if required_size.lower() in c.lower():\n                return c\n    if required_material:\n        for c in clickables:\n            if required_material.lower() in c.lower():\n                return c\n    return None\n\ndef hook(ctx, nb):\n    action = ctx.action\n    if not action:\n        return None\n    action_val = action.value_normalized\n    if action_val != \"buy now\" and \"buy now\" not in action_val:\n        return None\n    unselected = find_unselected_required(ctx, nb)\n    if unselected:\n        return {\"kind\": \"rewrite_action\", \"action\": \"click[\" + unselected + \"]\", \"message\": \"Select required attribute \" + unselected + \" before buying\"}\n    return None"
+    }
+  ]
+}
