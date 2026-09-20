@@ -34,15 +34,22 @@ task manifests.
 
 ## ALFWorld
 
-Install ALFWorld and its game assets in a dedicated environment:
+The 500-task Harness-R1 test split is available in
+[`data/alfworld/test_set.json`](../data/alfworld/test_set.json). It preserves the
+original task order and contains 109 tasks from `new_std` plus 391 stratified
+samples from `train_valid`, selected with seed `20260609`. Each entry is a game
+path relative to the ALFWorld data directory; the game assets are installed
+separately.
+
+Install ALFWorld and its game assets in a dedicated environment, then copy the
+split into AgentBench's ALFWorld data directory:
 
 ```bash
+mkdir -p code/life-harness/AgentBench/data/alfworld
+cp data/alfworld/test_set.json code/life-harness/AgentBench/data/alfworld/test_set.json
 export ALFWORLD_WORKER_PYTHON=/path/to/alfworld/bin/python
-export ALFWORLD_SPLIT=harness_r1_eval
+export ALFWORLD_SPLIT=test_set
 ```
-
-Create the deterministic split file under AgentBench's ALFWorld data directory.
-The public source includes split builders but not generated split contents.
 
 ## DBBench
 
