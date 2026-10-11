@@ -1,0 +1,18 @@
+The failure pattern is that the agent sometimes reaches a product detail page and tries to buy the item even though the page still shows required variant choices that have not been selected. In WebShop this can cause an invalid purchase attempt or a failed episode, because the correct size, color, material, flavor, or similar option must be chosen before using Buy Now. The harness should intervene at the moment the agent attempts to click Buy Now, since that is the point where an unselected required option becomes a concrete avoidable error.
+
+The hook runs in on_before_action and only inspects click actions whose normalized value is Buy Now. It maps runtime predicates to the needed behavior: if product_price_over_budget is true, it blocks the purchase and prompts the agent to return to search or results for an in-budget item. If required_options_unselected is true, it blocks Buy Now and gives a targeted prompt to choose the matching visible option first, with a fallback instruction to go back if no matching option is available. This keeps normal browsing and option selection unchanged, but prevents the specific premature purchase action that the observed failures show.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature Buy Now when required product options are still unselected.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    try:\n        if ctx['action']['tool'] != 'click_action':\n            return None\n        val = ctx['action']['value_normalized']\n    except Exception:\n        return None\n    if val != 'buy now':\n        return None\n    try:\n        over_budget = ctx['predicates']['product_price_over_budget']\n        missing_options = ctx['predicates']['required_options_unselected']\n    except Exception:\n        over_budget = False\n        missing_options = False\n    if over_budget:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy this item because its price is over the stated budget. Go back to search results or use Back to Search and choose an in-budget product.'}\n    if missing_options:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy yet. A required product option from the instruction is still unselected; choose the matching visible size, color, material, flavor, or similar option first. If no visible option matches, use Back to Search instead of buying.'}\n    return None"
+    }
+  ]
+}
+</patch>

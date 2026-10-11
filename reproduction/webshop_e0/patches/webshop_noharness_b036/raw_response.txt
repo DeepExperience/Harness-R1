@@ -1,0 +1,18 @@
+The failure pattern is that the agent sometimes reaches a product detail page and tries to buy the item even though the page still has required variant choices unselected, such as color, size, material, style, or a similar option. In WebShop this can cause an invalid purchase attempt or prevent the model from completing the task correctly, because the final item must match all explicit constraints from the instruction before buying. The harness should intervene at the moment the agent attempts to click Buy Now, since that is the point where an otherwise recoverable omission becomes a failed action.
+
+The hook runs in on_before_action and only inspects click actions whose normalized value is Buy Now. It maps the runtime predicate required_options_unselected to a block_and_prompt response, telling the agent to choose the matching visible option first or return to search if no matching option is available. This keeps normal browsing and buying behavior unchanged except for the unsafe premature purchase attempt, and it gives a targeted correction based on observable page state rather than guessing about the product.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature Buy Now when required product options are still unselected.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    try:\n        if ctx['action']['tool'] != 'click_action':\n            return None\n        val = ctx['action']['value_normalized']\n    except Exception:\n        return None\n    if val != 'buy now':\n        return None\n    try:\n        need = ctx['predicates']['required_options_unselected']\n    except Exception:\n        need = False\n    if need:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy yet: this product page still has a required variant choice unselected. Choose the visible option that matches the instruction, such as the required color, size, material, style, or similar attribute. If no visible option matches, use Back to Search instead of buying.'}\n    return None"
+    }
+  ]
+}
+</patch>

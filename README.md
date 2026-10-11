@@ -241,6 +241,14 @@ python scripts/check_release.py
 
 ## Evaluation
 
+To reproduce the WebShop main-table row, use the
+[WebShop reproduction guide](docs/WEBSHOP_MAIN_TABLE.md) and
+[`scripts/reproduce_webshop_main_table.sh`](scripts/reproduce_webshop_main_table.sh).
+The [reference artifacts](reproduction/webshop_e0/) include all 500 task
+manifests, the original 50 engineer inputs and patches, and a full downloadable
+bundle. That run used `webshop_code_only`; the materialized prompts are supplied
+to avoid reconstructing a different model-facing schema.
+
 Evaluation is fixed-batch run-patch-rerun: read a prompt plus immutable
 baseline metadata, generate one patch, validate it, rerun the frozen target on
 the same tasks, and report patched minus baseline.

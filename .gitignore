@@ -20,4 +20,4 @@ wandb/
 *.tar
 *.tar.gz
 *.zip
-
+!reproduction/webshop_e0/full-artifacts.tar.gz

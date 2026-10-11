@@ -1,0 +1,22 @@
+{
+  "archived_run_relative_path": "outputs/identityv1_after127_newckpts_a0_eval_20260717/identityclean_iter_0000143/webshop_test",
+  "archived_input_relative_path": "outputs/identityclean_sft_a0_eval_20260715/identityclean_sft_a0_webshop_selfcontained_20260715_2232/data/webshop_test500_goal_seed233_sft_aligned.jsonl",
+  "archived_input_sha256": "945cf264f802ed6aba9fc809f24a02bf9d88764a2d17bb11b4a74f0a55df230b",
+  "archived_run_config_sha256": "dbe70a321e333f40e1fa908334932711ae04c0923a0fed2ff6fb689a2436fbfd",
+  "export_date": "2026-10-11",
+  "prompt_messages_unchanged": true,
+  "metadata_changes": "Removed local source paths only; model-facing prompt messages are unchanged.",
+  "source_patches_unchanged": true,
+  "task_manifests_matched": 500,
+  "product_prices_sha256": [
+    "9f44958915599c0b494c1b6b94c8e57d2011058f779e49deb20a025716817438"
+  ],
+  "hook_counts": {
+    "on_before_action": 50
+  },
+  "response_finish_reasons": {
+    "stop": 50
+  },
+  "schema_style": "webshop_code_only",
+  "webshop_upstream_revision": "64fa2a5c15c7daa698b9ac93f5bb5437b634c9bd"
+}

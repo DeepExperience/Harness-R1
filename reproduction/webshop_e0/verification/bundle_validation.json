@@ -1,0 +1,6 @@
+{
+  "exported_inputs_pass_public_evaluator_preflight": 50,
+  "raw_responses_parse_to_archived_patches": 50,
+  "updated_full_dependency_patch_matches_tested_fix": true,
+  "historical_outputs_modified": false
+}

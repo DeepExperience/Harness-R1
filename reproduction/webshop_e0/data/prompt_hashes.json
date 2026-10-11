@@ -1,0 +1,202 @@
+[
+  {
+    "batch_tag": "webshop_noharness_b000",
+    "prompt_sha256": "723279acf5c7d2f6255ce7f446097e4b640d0b1500991de31477498cfb340b1f"
+  },
+  {
+    "batch_tag": "webshop_noharness_b001",
+    "prompt_sha256": "d574bfbcc55de190fd90c97d8989021967904bb3d6843d7a36df850de988bb51"
+  },
+  {
+    "batch_tag": "webshop_noharness_b002",
+    "prompt_sha256": "c14433c3c912456bee584a1eeb65a7f602902892c25f7384cb82331e15c2639f"
+  },
+  {
+    "batch_tag": "webshop_noharness_b003",
+    "prompt_sha256": "f7e67e04eddf65d710e6c96bcde4dd7b2cf049ade9277d7e1a7b8c7407116fab"
+  },
+  {
+    "batch_tag": "webshop_noharness_b004",
+    "prompt_sha256": "b7543ed95c8b7752a1fa5fedc326cd6d3e9372038ebc43f400e183b66e58489c"
+  },
+  {
+    "batch_tag": "webshop_noharness_b005",
+    "prompt_sha256": "30ad920b507ca64ee4c4f541726f8a9a0cc909c3eb0683fe7d47da129ae9c72d"
+  },
+  {
+    "batch_tag": "webshop_noharness_b006",
+    "prompt_sha256": "5c3c178475f9693d00247352eeb9f6c004d8dd282123f870c44fa5c6031fbb57"
+  },
+  {
+    "batch_tag": "webshop_noharness_b007",
+    "prompt_sha256": "e0fefd2b554d3b8d8af222b22ca1e0167a1500fd1fde311db23fcbddd80e0e87"
+  },
+  {
+    "batch_tag": "webshop_noharness_b008",
+    "prompt_sha256": "1ee95e64cc51a31935f8e2be7a5b225e6b491f460b4697a0f4a19e2b57978df6"
+  },
+  {
+    "batch_tag": "webshop_noharness_b009",
+    "prompt_sha256": "2f6c63f9135c0411eb7bbe8b6bc32ca6db47026b9b16601fd779ee83ee0b988b"
+  },
+  {
+    "batch_tag": "webshop_noharness_b010",
+    "prompt_sha256": "868aff7363a6e9841857cb65eae2d8319fa61ceaa7bf90c9fc5a7d77dd3a3a32"
+  },
+  {
+    "batch_tag": "webshop_noharness_b011",
+    "prompt_sha256": "da294e10483a00ebd773287a5f4a1307a3d2fa8deba336b132c794364f089f28"
+  },
+  {
+    "batch_tag": "webshop_noharness_b012",
+    "prompt_sha256": "3eb4815e4c630b305b8293422cd737749ba407dbe4003293be5435ead99ebbaa"
+  },
+  {
+    "batch_tag": "webshop_noharness_b013",
+    "prompt_sha256": "47f1d8a2510de65a3d4c3f3b8dae4a8ec313776cd63ef7f930638d05a28906b6"
+  },
+  {
+    "batch_tag": "webshop_noharness_b014",
+    "prompt_sha256": "bfbf45e31381861b9321710cd0149e3cce53cd28068e7ecc00546c0249c77a50"
+  },
+  {
+    "batch_tag": "webshop_noharness_b015",
+    "prompt_sha256": "177d64e3dc3d5669f55ae3aea8610d6729554f9cd7784a5756fcc39b5eae5e9d"
+  },
+  {
+    "batch_tag": "webshop_noharness_b016",
+    "prompt_sha256": "e4926d8b3ae14fd906f3c56bb4a27e18e7c773e0ee6968f823ed0a197ee210a8"
+  },
+  {
+    "batch_tag": "webshop_noharness_b017",
+    "prompt_sha256": "d6df8c8084623bd2e0413be0325c0b1c86c7f5301e7cb02759de78bf21eb876b"
+  },
+  {
+    "batch_tag": "webshop_noharness_b018",
+    "prompt_sha256": "2bed52bc045cb91728b5456b4746556fad4b9515d3c82efd54ef47c4f110aee3"
+  },
+  {
+    "batch_tag": "webshop_noharness_b019",
+    "prompt_sha256": "c3c31eed50b2bfc22cfec2ed80826b2549305e10b2e6642919be8e2129157b8d"
+  },
+  {
+    "batch_tag": "webshop_noharness_b020",
+    "prompt_sha256": "66f7b3d4dc3698105f0cd70e32f930adcc03332786b016cb1fb6a9d439fbb6a1"
+  },
+  {
+    "batch_tag": "webshop_noharness_b021",
+    "prompt_sha256": "525317b7144ef3df0b0f0558fd650ba6551f0152b621dddaf0483938774a37d5"
+  },
+  {
+    "batch_tag": "webshop_noharness_b022",
+    "prompt_sha256": "79cb2618cc64329bbe85a8f6bb7798e6281de99f27d7c557a54b33027f52ad2e"
+  },
+  {
+    "batch_tag": "webshop_noharness_b023",
+    "prompt_sha256": "ec991594a7343b90422f392808e349dfead72759345772926f22ea01736237a4"
+  },
+  {
+    "batch_tag": "webshop_noharness_b024",
+    "prompt_sha256": "83bc3f5452ffda31727ada1c476f5c6b7058a1646f921c451ca2bdd6c2112c50"
+  },
+  {
+    "batch_tag": "webshop_noharness_b025",
+    "prompt_sha256": "541e14c920d4e14c3976b7a78fb258bab913cbe0ced64352601871e1369d84a4"
+  },
+  {
+    "batch_tag": "webshop_noharness_b026",
+    "prompt_sha256": "91d66dd555dad155446f70e3f58bfa76b011357628236463c7d7816561035515"
+  },
+  {
+    "batch_tag": "webshop_noharness_b027",
+    "prompt_sha256": "95ff010e05365b68e833f894df565b2d90c78961749e36ec400c3d3b99e0f62e"
+  },
+  {
+    "batch_tag": "webshop_noharness_b028",
+    "prompt_sha256": "cbd4c61b7624fc760c4dbc33cf7b5d15fa64208fb54b2aac7d0a9f1d1d9b4b99"
+  },
+  {
+    "batch_tag": "webshop_noharness_b029",
+    "prompt_sha256": "deb9167bc5bd26c2b2d96c2e4844e4b3dd38ed1bc9849ba93996fa4df113b63f"
+  },
+  {
+    "batch_tag": "webshop_noharness_b030",
+    "prompt_sha256": "5e75dda17dd4074b79702d35dcddc887fa6ae12961becf7b2bea92285307f082"
+  },
+  {
+    "batch_tag": "webshop_noharness_b031",
+    "prompt_sha256": "6f7fb01c9ee0a373c805ef6068d4ca01da2a2127cdbd8d73e6ee412a61c0bb13"
+  },
+  {
+    "batch_tag": "webshop_noharness_b032",
+    "prompt_sha256": "8c49069c469153321361db183114ddbf74c90e4d6d91d499b22f3456a922431e"
+  },
+  {
+    "batch_tag": "webshop_noharness_b033",
+    "prompt_sha256": "b25441b3aa32514af817f212f1e7e923292dc731c2c077d589811cd0fe4a17ee"
+  },
+  {
+    "batch_tag": "webshop_noharness_b034",
+    "prompt_sha256": "433d3a95d8408123947b269515070b671ff6fdee479ca94f7ef31caa914c1631"
+  },
+  {
+    "batch_tag": "webshop_noharness_b035",
+    "prompt_sha256": "037dfdfdd69c832f9e80dd427d700a16e7c308652ba93df32c10b7a30e12177c"
+  },
+  {
+    "batch_tag": "webshop_noharness_b036",
+    "prompt_sha256": "c648d36266a2639599c31bf885d0bf987d6613b20b3094bdb3f27e60ba9dd38e"
+  },
+  {
+    "batch_tag": "webshop_noharness_b037",
+    "prompt_sha256": "9ad34c258aae8b79a3a263372593248b7f57f11c50a370f9aa2d1610a8d52159"
+  },
+  {
+    "batch_tag": "webshop_noharness_b038",
+    "prompt_sha256": "e594c99d755195bfff019047f941314300fc2467b22856a672c5d92a4e803023"
+  },
+  {
+    "batch_tag": "webshop_noharness_b039",
+    "prompt_sha256": "97d88b2dcca88b6c3ea46b4e047ee634ddd536d83f5216d8055744bf17755a0d"
+  },
+  {
+    "batch_tag": "webshop_noharness_b040",
+    "prompt_sha256": "da0bac23172f5d762fc5ce1244e0bb39643d182951678e144408f257270a1e00"
+  },
+  {
+    "batch_tag": "webshop_noharness_b041",
+    "prompt_sha256": "2ba707b0332a3b7676921d3921fb7cb6725eda13cf7d8964f7734f8e079d0f99"
+  },
+  {
+    "batch_tag": "webshop_noharness_b042",
+    "prompt_sha256": "5da727181db2c7093ef2e53b745366df261a7f989b66a5a5e2f172779382387b"
+  },
+  {
+    "batch_tag": "webshop_noharness_b043",
+    "prompt_sha256": "47cce78dee3aa8febaba6b65e91dc4292ce332e4dd965a83845d80d03836244c"
+  },
+  {
+    "batch_tag": "webshop_noharness_b044",
+    "prompt_sha256": "76f8d9f989986b7e58d224b63a30531ed0fd30f8ac0e6d32d357977dcfa51c14"
+  },
+  {
+    "batch_tag": "webshop_noharness_b045",
+    "prompt_sha256": "fffb5901378a5dbf4ea04b22c9ab47d21a168a89adf2ee8014c55e416cc71572"
+  },
+  {
+    "batch_tag": "webshop_noharness_b046",
+    "prompt_sha256": "d8d1aa0ce9faccbcceda697fcee0e6c39b2cf8e45c98003a745466c56bb44a91"
+  },
+  {
+    "batch_tag": "webshop_noharness_b047",
+    "prompt_sha256": "8abd0a31c09958575790e1f40e3d5284b951e7af8ff79ede6706412b6728cfd1"
+  },
+  {
+    "batch_tag": "webshop_noharness_b048",
+    "prompt_sha256": "f61c27daebc44b7c4c1499cd48a502037af371ca2418fa7c0b70e3665d42ae1c"
+  },
+  {
+    "batch_tag": "webshop_noharness_b049",
+    "prompt_sha256": "6517b3ae7bdd13c7ab5d536caa4cc446bc1f6839dfe3fb55b95484defc998aa0"
+  }
+]

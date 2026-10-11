@@ -1,0 +1,18 @@
+The failure pattern is that the agent sometimes reaches a product detail page and tries to buy the item even though the page still has a required variant choice unselected, such as color, size, material, flavor, style, or a similar option. In WebShop this can turn an otherwise recoverable browsing step into a failed purchase: the model clicks Buy Now while the item is not actually configured to match the instruction, or it buys an item whose visible price is already over budget. The harness should intervene at the moment the Buy Now click is about to be taken, because that is the point where an avoidable invalid purchase can be stopped and the agent can be redirected to choose the missing option or return to search if the needed option is unavailable.
+
+The hook runs in on_before_action and only inspects click actions whose normalized value is Buy Now. It maps runtime predicates to two blocks: if product_price_over_budget is true, it blocks the purchase and prompts the agent to go back and find an in-budget item; if required_options_unselected is true, it blocks Buy Now and tells the agent to select the matching visible option first, or use Back to Search when the required option is not offered. This keeps normal search and product inspection behavior unchanged, and only prevents the specific premature purchase action that the predicates show is not yet valid.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "webshop",
+  "description": "Block premature Buy Now when required product options or budget checks are not satisfied.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    try:\n        if ctx['action']['tool'] != 'click_action':\n            return None\n        val = ctx['action']['value_normalized']\n    except Exception:\n        return None\n    if val != 'buy now':\n        return None\n    try:\n        over_budget = ctx['predicates']['product_price_over_budget']\n        missing_options = ctx['predicates']['required_options_unselected']\n    except Exception:\n        over_budget = False\n        missing_options = False\n    if over_budget:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy this item because its price is over the stated budget. Go back to search/results and choose an in-budget product.'}\n    if missing_options:\n        return {'kind': 'block_and_prompt', 'message': 'Do not buy yet. A required product option from the instruction is still unselected; choose the matching visible color, size, material, flavor, style, or similar option first. If the required option is not available on this product, use Back to Search instead of buying.'}\n    return None"
+    }
+  ]
+}
+</patch>

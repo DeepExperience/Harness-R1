@@ -1,0 +1,51 @@
+diff --git a/web_agent_site/envs/web_agent_text_env.py b/web_agent_site/envs/web_agent_text_env.py
+--- a/web_agent_site/envs/web_agent_text_env.py
++++ b/web_agent_site/envs/web_agent_text_env.py
+@@ -68,6 +68,7 @@
+             self.kwargs.get('num_products'),
+             self.kwargs.get('human_goals'),
+             self.kwargs.get('show_attrs', False),
++            self.kwargs.get('goal_seed', 233),
+         ) if server is None else server
+         self.browser = SimBrowser(self.server)
+
+@@ -284,6 +285,7 @@
+         num_products=None,
+         human_goals=0,
+         show_attrs=False,
++        goal_seed=233,
+     ):
+         """
+         Constructor for simulated server serving WebShop application
+@@ -294,17 +296,20 @@
+         num_products (`int`) -- Number of products to search across
+         human_goals (`bool`) -- If true, load human goals; otherwise, load synthetic goals
+         """
+-        # Load all products, goals, and search engine
+-        self.base_url = base_url
+-        self.all_products, self.product_item_dict, self.product_prices, _ = \
+-            load_products(filepath=file_path, num_products=num_products, human_goals=human_goals)
+-        self.search_engine = init_search_engine(num_products=num_products)
+-        self.goals = get_goals(self.all_products, self.product_prices, human_goals)
+-        self.show_attrs = show_attrs
+-
+-        # Fix outcome for random shuffling of goals
+-        random.seed(233)
+-        random.shuffle(self.goals)
++        # Fix prices and goal constraints before independently fixing goal order.
++        random_state = random.getstate()
++        try:
++            random.seed(goal_seed)
++            self.base_url = base_url
++            self.all_products, self.product_item_dict, self.product_prices, _ = \
++                load_products(filepath=file_path, num_products=num_products, human_goals=human_goals)
++            self.search_engine = init_search_engine(num_products=num_products)
++            self.goals = get_goals(self.all_products, self.product_prices, human_goals)
++            self.show_attrs = show_attrs
++            random.seed(goal_seed)
++            random.shuffle(self.goals)
++        finally:
++            random.setstate(random_state)
+
+         # Apply `filter_goals` parameter if exists to select speific goal(s)
+         if filter_goals is not None:

@@ -1,0 +1,17 @@
+{
+  "total_batches": 50,
+  "total_tasks": 500,
+  "valid_patches": 50,
+  "eval_ok_batches": 50,
+  "baseline_pass": 156,
+  "patched_pass": 211,
+  "delta_pass": 55,
+  "baseline_pass_rate": 0.312,
+  "patched_pass_rate": 0.422,
+  "delta_pass_rate": 0.11,
+  "baseline_average_reward": 0.6595866666666667,
+  "patched_average_reward": 0.69923,
+  "delta_average_reward": 0.039643333333333315,
+  "invalid_or_failed_batches": 0,
+  "elapsed_sec": 1603.527
+}
