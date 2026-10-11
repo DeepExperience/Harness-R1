@@ -1,0 +1,41 @@
+{
+  "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b023",
+  "start": 230,
+  "end": 240,
+  "valid_patch": true,
+  "patch_status": "valid",
+  "eval_status": "ok",
+  "eval_returncode": 0,
+  "patched_rewards": {
+    "0": 0.0,
+    "2": 1.0,
+    "5": 0.0,
+    "9": 1.0,
+    "3": 1.0,
+    "7": 1.0,
+    "4": 0.0,
+    "8": 0.0,
+    "1": 0.0,
+    "6": 0.0
+  },
+  "patched_n": 10,
+  "baseline_pass": 2,
+  "patched_pass": 4,
+  "baseline_average_reward": 0.2,
+  "patched_average_reward": 0.4,
+  "batch_size": 10,
+  "delta_pass": 2,
+  "delta_pass_rate": 0.2,
+  "delta_average_reward": 0.2,
+  "score": 0.2,
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 16986,
+    "total_tokens": 19528,
+    "completion_tokens": 2542,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "raw_response_sha256": "e135f5eb986f404b7154d259f822a0508c085aa3887da0a066e43f15678f29fa",
+  "patch_sha256": "702a7c65b2bba5203ad0713533702535a66d5a2b35e9754d9307a348d76d7527"
+}

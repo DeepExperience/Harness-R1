@@ -1,0 +1,202 @@
+[
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b000",
+    "prompt_sha256": "2f90261f2bc92a6ea784e591c26a3240ab418b55f419a101b265670eb878fe42"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b001",
+    "prompt_sha256": "03d542c0b5c654120cb0f9557e5b03924087f40bef87dadb824f423ce2c4a3a7"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b002",
+    "prompt_sha256": "c78513b8ad450521023a1059ba41143dc0b4fb887cb4d347dedfbc366165ab53"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b003",
+    "prompt_sha256": "7c9655f3021f9ad669420c851d6918c470d29a600b93ee23c95be8bb0e3a617b"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b004",
+    "prompt_sha256": "b08bb8ab076e838d40de6fa31baa8c8fdf2423a78b4ccd4b81ee4f81b68b053c"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b005",
+    "prompt_sha256": "fd8cd6bdad4db831fd36b400536051bf12c73db56ce136ca913d7f168f0a3ff8"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b006",
+    "prompt_sha256": "8f9bacef031bc3497aa9c3c46c03ffff0ecc4822da31466155b9c20cf24864fe"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b007",
+    "prompt_sha256": "50fd2f05b739b6b3ab14f31a5ff1d5f33c7ed2f6567aabf2cf3b4d97c96cb76a"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b008",
+    "prompt_sha256": "10ebe26353e1ffdb0387c423124f139142e1cf8537a056e26ccfed6bce2ade2e"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b009",
+    "prompt_sha256": "780594bb211c112ab85a02949f646a505f77b8e234dbf97b44827052f9f5c52d"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b010",
+    "prompt_sha256": "5f81c5625dda24740a0d88083775275813f480488d431386a304e6521157c38a"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b011",
+    "prompt_sha256": "18968a2e9799be6f97deb013f1ef62c69287fe24cb00128c326ba7b318f8c312"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b012",
+    "prompt_sha256": "ba3ceef1bb34ad3c3d45ba6d269b9bfc75ad31fc109b8eb93482b07824f607e3"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b013",
+    "prompt_sha256": "3ea6b4b8fe433d5962397e5f0e85b6ea379a0692509f95fef1abc6450fe367cb"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b014",
+    "prompt_sha256": "14f83f5519e50af4939d61f88944f8c8c029aa0b87ca42053b9d22501b0117a0"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b015",
+    "prompt_sha256": "810de7209853fa06bcebc8691da14740c9bb8811351839e61a962164bf36ce12"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b016",
+    "prompt_sha256": "f507a51ee96588c9c2fac54c0e29957617cca1d13443aafb181ef87fff3c2840"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b017",
+    "prompt_sha256": "31c49435347313ca1653487d85ce6878c95f247f8b7ff16c71a9119a9d37785d"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b018",
+    "prompt_sha256": "16e405df8232fec2ba424e681e6cd9de917a071abf07d0273bd2b415c14105ea"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b019",
+    "prompt_sha256": "7e6861d82014786ac055dd99891bc4a7c6abcc408a6d527b1c2c141c255956df"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b020",
+    "prompt_sha256": "2c3da9422325877717c7de3d5e61000533597b4353783ff1f60b8f5915722e67"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b021",
+    "prompt_sha256": "59022ed1eb646f49398d138c520822411016d6281210d7eb9adf9eca46ded25d"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b022",
+    "prompt_sha256": "da1393b2003b742f87a09f3f7925857a950cb31f104d729be0acc296d67199b3"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b023",
+    "prompt_sha256": "2c388d3cddd6120b2b81b6839027ca79121a1bc61e919edbe5e672468cfa2c90"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b024",
+    "prompt_sha256": "a52de277d6d2b7b1d726ca1cf498a5574cd33e7b56d41c568bfbb77f42344e61"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b025",
+    "prompt_sha256": "3cae357716ccfbcdfede03112e8467d5b395e950e02cee077448f9a1bab433d6"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b026",
+    "prompt_sha256": "0f012855b1d2a229fa371162729999b32b6e78df2a0f35ff2a21c8ebd91dc87f"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b027",
+    "prompt_sha256": "75af7c3e6426a500973c88dc5da951c8152f4ea297a4d0f02356036233e8bb8e"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b028",
+    "prompt_sha256": "605f52519910eb2f79d5ace9fa931abcce25a1462a47ba009a7105acc0c4ffa9"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b029",
+    "prompt_sha256": "fac1fb28dc9d56f131527d4b69bb9bb7cbf31bf6f2a13ad29c86e62d5f2bac1a"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b030",
+    "prompt_sha256": "aa7c99d7a3cc190731fefe07b6b99013243e9db582fcb95ac99ff1050af120ed"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b031",
+    "prompt_sha256": "91fae3d312f8e463dff9ef79798d4438bce2353a74495f3de29de0bc09335b18"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b032",
+    "prompt_sha256": "ae50c10cfbc08f1206f3a69ffce4b13974c08eb5706ab2e9bfb023f3691d6bdb"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b033",
+    "prompt_sha256": "4cb4cb50f2e77d946f68ba32cf99f1cf3802b162910a45f3af6f8b7f6891f010"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b034",
+    "prompt_sha256": "31ad2daf3b567004227c236ed5e52d65b35a55b51faecdeb61a5e260174227c3"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b035",
+    "prompt_sha256": "4d1799ee55715742f7d8e77917dbabb7ae936f5059b26f587ae8fb204c51cd37"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b036",
+    "prompt_sha256": "5b65afce1ec7a91e013ce65b6858e47e0fe41d1d720f606d6adb8400e203dc3e"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b037",
+    "prompt_sha256": "b7b50621101c1e1f1c76ba4f28f090421a0f883bd31b60b0dcff6d6c743f60dd"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b038",
+    "prompt_sha256": "8c8a572c85018a12e7e6d7ef006253d16baafb12af6f630e5ecb5d77650404bc"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b039",
+    "prompt_sha256": "c3de2f95a050cbc6c4b2c3cfe030488f460b9caff674b73c54366e68292d510c"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b040",
+    "prompt_sha256": "3f58519125e6998ce23723ddb33d0f219be87c0335375c8fdfeffa4d77b7cf20"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b041",
+    "prompt_sha256": "d6e58e87ab05cbb574924c440a825c2d418847ff36fc86f0b0a90897b3423202"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b042",
+    "prompt_sha256": "eb92f257bbf16e8352989407d85572c75fb71cfc1b5219bdbf3731afb8b03643"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b043",
+    "prompt_sha256": "9775d76badddf8bb6a4fdfa50531ba268fe0d7c17fa8fe3c723b901fb98a3a7e"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b044",
+    "prompt_sha256": "5521f001702db7b6dd85f81618bc8da7bb082f9d9160bc659264ed2adb742485"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b045",
+    "prompt_sha256": "52f234970b5ecbf3cc24a03d1a4a65b5c20ed7a01bd9652b90df4eae2d268761"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b046",
+    "prompt_sha256": "2e0d8e69655dcf9abc9847503c22f1604401e8e57cc725eacf40e61fdab1d36f"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b047",
+    "prompt_sha256": "362c485aea2c2789de8f1ffbc18bdb76d59154fb644e059d5466815328d38889"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b048",
+    "prompt_sha256": "061e40667f8117042d6db8ff8f9a207796602dad380a892bd8cb53f509df77cd"
+  },
+  {
+    "batch_tag": "current_nopatch_eval500_qwen35_9b_nothink_auto_merged_20260612_0115_b049",
+    "prompt_sha256": "081a371d3b5ea8ab70165968369b1cc14c1521782fedb5023a588d58b73333fa"
+  }
+]

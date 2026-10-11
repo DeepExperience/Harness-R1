@@ -39,10 +39,13 @@ REQUIRED = (
     "scripts/train_engineer_rl.sh",
     "scripts/eval_webshop.sh",
     "scripts/reproduce_webshop_main_table.sh",
+    "scripts/reproduce_alfworld_main_table.sh",
     "scripts/verify_webshop_environment.py",
     "docs/WEBSHOP_MAIN_TABLE.md",
     "reproduction/webshop_e0/data/engineer_inputs.jsonl",
     "reproduction/webshop_e0/data/tasks.jsonl",
+    "reproduction/alfworld_e0/data/engineer_inputs.jsonl",
+    "reproduction/alfworld_e0/data/tasks.jsonl",
     "demo/run_demo.py",
     "demo/artifacts/patch.json",
 )

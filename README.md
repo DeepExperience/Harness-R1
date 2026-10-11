@@ -249,6 +249,11 @@ manifests, the original 50 engineer inputs and patches, and a full downloadable
 bundle. That run used `webshop_code_only`; the materialized prompts are supplied
 to avoid reconstructing a different model-facing schema.
 
+The [ALFWorld E0 reference](reproduction/alfworld_e0/) likewise includes the
+original 50 inputs and outputs, valid patches, and key settings. Use
+[`scripts/reproduce_alfworld_main_table.sh`](scripts/reproduce_alfworld_main_table.sh)
+to replay the archived patches or regenerate them from the exact inputs.
+
 Evaluation is fixed-batch run-patch-rerun: read a prompt plus immutable
 baseline metadata, generate one patch, validate it, rerun the frozen target on
 the same tasks, and report patched minus baseline.

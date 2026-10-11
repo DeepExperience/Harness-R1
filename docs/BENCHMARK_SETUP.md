@@ -57,6 +57,9 @@ does not establish that the search index or serving stack is identical.
 
 ## ALFWorld
 
+For the main-table E0 input/output artifacts and runnable commands, see
+[`reproduction/alfworld_e0/`](../reproduction/alfworld_e0/).
+
 The 500-task Harness-R1 test split is available in
 [`data/alfworld/test_set.json`](../data/alfworld/test_set.json). It preserves the
 original task order and contains 109 tasks from `new_std` plus 391 stratified

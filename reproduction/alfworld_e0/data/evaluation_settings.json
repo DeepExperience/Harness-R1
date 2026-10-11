@@ -1,0 +1,39 @@
+{
+  "engineer_model": "Qwen3.5-9B-IdentityV1-iter143",
+  "engineer_max_tokens": 12288,
+  "engineer_concurrency": 8,
+  "engineer_temperature": 0.0,
+  "engineer_top_p": 1.0,
+  "engineer_chat_template_kwargs": {
+    "enable_thinking": true
+  },
+  "engineer_extra_body": {},
+  "engineer_assistant_prefill": "<think>\n",
+  "engineer_retries": 3,
+  "engineer_retry_sleep": 10.0,
+  "engineer_timeout": 1200,
+  "response_protocol": "prefill_think_patch",
+  "target_model": "Qwen3.5-9B",
+  "alfworld_max_step": 50,
+  "rollout_concurrency": 10,
+  "rollout_auto_retry": true,
+  "rollout_max_tokens": 4096,
+  "rollout_tool_choice": "auto",
+  "rollout_chat_template_kwargs": {
+    "enable_thinking": false
+  },
+  "startup_timeout": 900,
+  "rollout_timeout": 3600,
+  "eval_timeout": 7200,
+  "schema_style": "alfworld_life_multihook_v1",
+  "alfworld_split": "test_set",
+  "trace_packet": {
+    "max_traces": 4,
+    "strategy": "lowest_reward",
+    "max_obs_chars": 350,
+    "max_assistant_chars": 200,
+    "max_approx_tokens": 12000
+  },
+  "explicit_stop_strings": [],
+  "invalid_patch_policy": "no_patch"
+}

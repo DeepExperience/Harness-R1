@@ -1,0 +1,22 @@
+{
+  "checkpoint": "identity-clean E0 iter143",
+  "export_date": "2026-10-11",
+  "source_run_relative_path": "outputs/identityv1_after127_newckpts_a0_eval_20260717/identityclean_iter_0000143/alfworld_test",
+  "source_input_relative_path": "data/relax/alfworld_eval500_qwen35_9b_current_nopatch_life_multihook_v1_prefill_20260614.jsonl",
+  "source_input_sha256": "a47045bcaa2d8d06ac871ae108a1870b5fe4fc1e8e582a20d1527f054462aed7",
+  "source_run_config_sha256": "260a95ddcefb2f5358948ff3e1d2c8d3e73a078fb92e16e7e27fbfa98b87c8a8",
+  "split_sha256": "e6edcf2b2de1b32c8f011e52162012d7aa3356546cb4eb2f11ab0e7b941857ae",
+  "source_split": "harness_r1_eval500_20260609",
+  "released_split": "test_set",
+  "split_file_bytes_identical": true,
+  "prompt_messages_unchanged": true,
+  "metadata_changes": [
+    "Removed private source paths",
+    "Renamed split to test_set; same 500 entries in the same order"
+  ],
+  "prompt_hash_encoding": "SHA256 of UTF-8 json.dumps(prompt, ensure_ascii=False, sort_keys=True, separators=(',', ':'))",
+  "all_engineer_outputs_preserved": 50,
+  "valid_patches": 43,
+  "invalid_outputs_preserved": 7,
+  "new_model_requests": 0
+}
