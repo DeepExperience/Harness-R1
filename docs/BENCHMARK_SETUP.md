@@ -1,6 +1,7 @@
 # Benchmark Setup
 
-Benchmark assets are intentionally not vendored. The source tree preserves the
+Large environment assets are installed separately. Task manifests and the
+DBBench main-table test records are included. The source tree preserves the
 expected AgentBench layout:
 
 ```text
@@ -78,6 +79,11 @@ export ALFWORLD_SPLIT=test_set
 ```
 
 ## DBBench
+
+The [DBBench E0 reference](../reproduction/dbbench_e0/) includes the original
+inputs/outputs, exact [300-task test file](../data/dbbench/standard.jsonl), and
+main-table replay/generation commands. It uses `standard.jsonl` in consecutive
+batches of 10 and the manual MySQL driver.
 
 DBBench supports:
 

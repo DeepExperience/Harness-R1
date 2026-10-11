@@ -1,0 +1,22 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL debugging stages for schema recovery, empty results, text numerics, and mutation verification.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['need_schema_probe'] = True\n    text = 'DBBench SQL workflow: confirm exact table and column names when identifiers may contain spaces or punctuation; use SHOW TABLES and DESCRIBE after name errors. For SELECT answers, submit raw result values rather than prose. For INSERT/UPDATE/DELETE, execute the mutation, verify with a targeted SELECT, then commit.'\n    return {'skills': [{'text': text}], 'tool_hint': 'Use MySQL syntax; quote identifiers with backticks and preserve literal punctuation, spaces, percent signs, and newlines.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    a = ctx.get('action') or {}\n    q = (a.get('query') or s.get('last_sql') or '').lower()\n    err = (s.get('last_error_text') or '').lower()\n    if p.get('unknown_column_error') or p.get('syntax_error') or 'unknown column' in err or 'does not exist' in err or '1146' in err:\n        nb['stage'] = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n    elif p.get('last_result_empty') and not p.get('mutation_task') and not p.get('last_result_error'):\n        nb['stage'] = 'fixing_empty_result'\n    elif p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        nb['stage'] = 'repeated_query_loop'\n    elif p.get('text_only_loop') or (s.get('text_only_streak') or 0) >= 2:\n        nb['stage'] = 'text_numeric_cast'\n    elif p.get('mutation_task') and p.get('mutation_not_attempted'):\n        nb['stage'] = 'mutation_needs_execution'\n    elif p.get('mutation_task') and s.get('mutation_attempted'):\n        nb['stage'] = 'ready_to_commit_candidate'\n    if p.get('candidate_answer_available') and not s.get('candidate_implausible') and not p.get('mutation_task'):\n        nb['ready_to_commit_candidate'] = True\n    if p.get('remaining_rounds_low') and p.get('candidate_answer_available') and not s.get('candidate_implausible') and not p.get('mutation_task'):\n        nb['ready_to_commit_candidate'] = True\n    if a.get('tool') == 'execute_sql' and not p.get('last_result_error') and not p.get('last_result_empty') and not p.get('mutation_task'):\n        if 'select' in q and 'limit' in q and not s.get('last_result_was_error'):\n            nb['need_schema_probe'] = False\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage')\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Schema/name issue: inspect exact table and column names with SHOW TABLES and DESCRIBE the target table, then use backticks for identifiers with spaces or punctuation. Do not guess column spelling.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty SELECT: inspect sample rows or distinct values for the filtered columns, then relax one predicate at a time. Check case, punctuation, spacing, and whether numeric-looking fields are stored as text.'\n    elif stage == 'text_numeric_cast':\n        msg = 'Text numeric loop: for ranking, ordering, or aggregation over text fields that look numeric, cast cleaned values to SIGNED or DECIMAL and avoid lexicographic sort.'\n    elif stage == 'mutation_needs_execution':\n        msg = 'Mutation task: first execute the INSERT, UPDATE, or DELETE using exact requested literals and MySQL syntax. An empty tool result can still mean the data-changing statement ran.'\n    elif stage == 'ready_to_commit_candidate':\n        msg = 'Mutation verification: after a data-changing statement, run a targeted SELECT to confirm the affected row or absence. If the database state matches the request, commit a concise final answer.'\n    if not msg:\n        return None\n    key = stage + ':' + msg[:60]\n    if nb.get('last_hint') == key:\n        return None\n    nb['last_hint'] = key\n    return {'message': msg}"
+    }
+  ]
+}

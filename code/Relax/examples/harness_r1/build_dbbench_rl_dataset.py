@@ -87,6 +87,8 @@ def build_rows(args: argparse.Namespace, source_root: Path) -> list[dict[str, An
         add_prefill_thinking_instruction=args.add_prefill_thinking_instruction,
         include_dbbench_runtime_context=args.include_dbbench_runtime_context,
         include_dbbench_world_model=False,
+        prompt_prefix_reference=None,
+        prompt_prefix_reference_messages=[],
         revision_source_root=None,
         revision_require_previous=False,
         revision_prompt_version="",

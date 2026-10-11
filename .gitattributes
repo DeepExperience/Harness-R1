@@ -1,3 +1,5 @@
 # Preserve archived bytes, including whitespace left by truncated generations.
 reproduction/** -text
 reproduction/alfworld_e0/outputs/*/raw_response.txt -whitespace
+reproduction/dbbench_e0/outputs/*/raw_response.txt -whitespace
+data/dbbench/standard.jsonl -text

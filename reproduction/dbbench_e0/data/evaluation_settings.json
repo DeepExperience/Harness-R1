@@ -1,0 +1,41 @@
+{
+  "engineer_model": "Qwen3.5-9B-IdentityV1-iter143",
+  "engineer_max_tokens": 12288,
+  "engineer_concurrency": 8,
+  "engineer_temperature": 0.0,
+  "engineer_top_p": 1.0,
+  "engineer_chat_template_kwargs": {
+    "enable_thinking": true
+  },
+  "engineer_extra_body": {},
+  "engineer_assistant_prefill": "<think>\n",
+  "engineer_reasoning_effort": "",
+  "engineer_retries": 3,
+  "engineer_retry_sleep": 10.0,
+  "empty_response_retries": 1,
+  "engineer_timeout": 1200,
+  "response_protocol": "prefill_think_patch",
+  "target_model": "Qwen3.5-9B",
+  "dbbench_env_driver": "manual",
+  "dbbench_max_round": 20,
+  "rollout_concurrency": 10,
+  "rollout_max_tokens": 4096,
+  "rollout_tool_choice": "auto",
+  "rollout_chat_template_kwargs": {
+    "enable_thinking": false
+  },
+  "rollout_http_timeout": 900,
+  "startup_timeout": 300,
+  "rollout_timeout": 3600,
+  "eval_timeout": 5400,
+  "max_failures_per_batch": 4,
+  "max_messages_per_trace": 22,
+  "max_tool_result_chars": 1200,
+  "max_overview_chars": 3000,
+  "max_evidence_chars": 26000,
+  "include_dbbench_runtime_context": true,
+  "schema_style": "dbbench_life_multihook_v1",
+  "dbbench_data_file": "data/dbbench/standard.jsonl",
+  "explicit_stop_strings": [],
+  "invalid_patch_policy": "no_patch"
+}

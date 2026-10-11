@@ -1,0 +1,27 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL schema recovery, text-numeric handling, and answer-shape guidance for DBBench.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['need_schema_probe'] = True\n    text = 'DBBench SQL workflow: use exact table and column names from the prompt/schema; wrap identifiers containing spaces, punctuation, or reserved words in backticks. Many columns are TEXT, so cast numeric-looking fields for comparisons, ordering, and aggregation. For SELECT questions, submit the requested cell values rather than a count unless the question explicitly asks for a count. For mutations, execute the data-changing statement, optionally verify, then commit.'\n    return {'skills': [{'text': text}], 'tool_hint': 'Probe schema after identifier errors; preserve literal text and casing; answer shape should match the question.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    a = ctx.get('action') or {}\n    q = (a.get('query') or s.get('last_sql') or '').lower()\n    err = (s.get('last_error_text') or '').lower()\n    if p.get('unknown_column_error') or p.get('syntax_error') or 'unknown column' in err or 'syntax' in err or 'does not exist' in err:\n        nb['stage'] = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n        return None\n    if p.get('last_result_empty') and not p.get('mutation_task') and not p.get('last_result_error'):\n        nb['stage'] = 'fixing_empty_result'\n        return None\n    if p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        nb['stage'] = 'repeated_query_loop'\n        return None\n    if p.get('text_only_loop') or (s.get('text_only_streak') or 0) >= 2:\n        nb['stage'] = 'text_numeric_handling'\n        return None\n    if p.get('mutation_task') and s.get('mutation_attempted'):\n        nb['stage'] = 'mutation_needs_execution'\n        return None\n    if p.get('candidate_answer_available') and not s.get('candidate_implausible'):\n        nb['stage'] = 'ready_to_commit_candidate'\n        return None\n    if 'how many' in q and 'count(' not in q and not p.get('last_result_error') and not p.get('last_result_empty'):\n        nb['count_question'] = True\n        nb['stage'] = 'count_value_shape'\n        return None\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage')\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Identifier/schema issue: run DESCRIBE or SHOW COLUMNS for the target table, then use the exact returned column names with backticks when they contain spaces, punctuation, or reserved words. Do not guess underscore variants.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty SELECT: inspect sample rows or distinct values for the filtered columns, then relax one predicate or use LIKE/regex. Remember that numeric-looking fields may be stored as TEXT.'\n    elif stage == 'text_numeric_handling':\n        msg = 'Text numeric handling: for ranking, ordering, comparisons, sums, or averages over TEXT columns, cast the relevant field to SIGNED or DECIMAL. Preserve original text only for final display if needed.'\n    elif stage == 'count_value_shape':\n        msg = 'Answer shape check: if the question asks for a count, use COUNT(*). If it asks how many times a condition occurred but does not explicitly request a count, return the requested cell value(s) from the matching row(s), not just the count.'\n    elif stage == 'mutation_needs_execution':\n        msg = 'Mutation task: execute the INSERT, UPDATE, or DELETE before committing. An empty tool result can still mean the mutation ran; verify the affected rows or final state if useful.'\n    elif stage == 'ready_to_commit_candidate':\n        msg = 'Before committing, align the answer list with the question: one value per requested cell, preserving punctuation, spaces, percent signs, and case; avoid extra explanatory text.'\n    if not msg:\n        return None\n    key = stage + ':' + msg[:60]\n    if nb.get('last_hint') == key:\n        return None\n    nb['last_hint'] = key\n    return {'message': msg}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    a = ctx.get('action') or {}\n    if a.get('tool') != 'commit_final_answer':\n        return None\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    answers = a.get('answers')\n    if p.get('commit_before_sql') or (s.get('sql_count') or 0) == 0:\n        return {'kind': 'block_and_prompt', 'message': 'Run at least one SQL query to inspect the table before committing a final answer.'}\n    if p.get('commit_empty_answer') and not (p.get('mutation_task') and s.get('mutation_attempted')):\n        return {'kind': 'block_and_prompt', 'message': 'Do not commit an empty answer for a SELECT-style task; provide the SQL-derived value(s) requested by the question.'}\n    if p.get('mutation_task') and p.get('mutation_not_attempted'):\n        return {'kind': 'block_and_prompt', 'message': 'This is a data-changing task; execute the INSERT, UPDATE, or DELETE before committing.'}\n    return None"
+    }
+  ]
+}

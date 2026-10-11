@@ -1,0 +1,31 @@
+- Recurring failures are mutation tasks where the agent either skips schema/row inspection, loses exact text formatting, or commits without a reliable verification step. - Maintain reusable stages for schema probing, empty-result recovery, mutation execution, verification, and final commit readiness. - on_init gives compact SQL workflow guidance; on_post_step updates stage from evidence; make_pre_hint gives deduped recovery hints; on_before_action blocks only unsafe commits. - Avoided hard-coded answers or SQL rewrites, preserving successful trajectories while improving mutation safety across tasks.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL mutation workflow guidance with schema probing, exact-text preservation, and verification stages.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['mutation_needs_execution'] = False\n    nb['ready_to_commit_candidate'] = False\n    text = 'DBBench SQL workflow: inspect schema/sample rows when uncertain; for INSERT/UPDATE/DELETE preserve exact requested text, punctuation, spaces, percent signs, unicode, and newlines; quote text values; verify the changed row/state with SELECT before final commit.'\n    return {'skills': [{'text': text}], 'tool_hint': 'Use schema probes after errors or empty results; do not normalize text unless the task asks.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    a = ctx.get('action') or {}\n    q = (a.get('query') or '').strip().lower()\n    if p.get('mutation_task') and p.get('mutation_not_attempted'):\n        nb['mutation_needs_execution'] = True\n    if p.get('unknown_column_error') or p.get('syntax_error') or s.get('last_error_kind') in ('unknown_col', 'syntax'):\n        nb['stage'] = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n    elif p.get('last_result_empty') and not p.get('mutation_task'):\n        nb['stage'] = 'fixing_empty_result'\n    elif p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        nb['stage'] = 'repeated_query_loop'\n    elif p.get('mutation_task') and s.get('mutation_attempted'):\n        nb['mutation_needs_execution'] = False\n        nb['ready_to_commit_candidate'] = True\n        nb['stage'] = 'verify_mutation'\n    elif p.get('candidate_answer_available') and not s.get('candidate_implausible'):\n        nb['ready_to_commit_candidate'] = True\n        nb['stage'] = 'ready_to_commit_candidate'\n    if p.get('text_only_loop') or (s.get('text_only_streak') or 0) >= 2:\n        nb['stage'] = 'text_numeric_or_format_check'\n    if p.get('remaining_rounds_low') and nb.get('ready_to_commit_candidate') and not s.get('candidate_implausible'):\n        nb['stage'] = 'ready_to_commit_candidate'\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage')\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Schema or identifier issue: use SHOW TABLES and DESCRIBE the target table, then match column names exactly. In MySQL text columns may need CONCAT for string concatenation rather than ||.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty SELECT: inspect sample rows or distinct values for the filtered columns, then relax one predicate or use LIKE to find the stored format before retrying.'\n    elif stage == 'text_numeric_or_format_check':\n        msg = 'Text-heavy columns often store numbers, dates, or percentages as text. For ranking or aggregation cast cleaned numeric text; for exact inserts preserve the requested text formatting.'\n    elif stage == 'verify_mutation':\n        msg = 'After a data-changing statement, verify the affected row or count with SELECT. An empty tool result can still mean success; do not infer failure from [] alone.'\n    elif stage == 'ready_to_commit_candidate':\n        msg = 'Before final commit, ensure the submitted values match the verified database state. For mutation tasks, a concise completion answer is acceptable after the change is verified.'\n    if not msg:\n        return None\n    key = stage + ':' + msg[:60]\n    if nb.get('last_hint') == key:\n        return None\n    nb['last_hint'] = key\n    return {'message': msg}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    a = ctx.get('action') or {}\n    p = ctx.get('predicates') or {}\n    if a.get('tool') != 'commit_final_answer':\n        return None\n    if not p.get('mutation_task'):\n        return None\n    if p.get('commit_before_sql') or p.get('no_sql_yet'):\n        return {'kind': 'block_and_prompt', 'message': 'Run at least one SQL query to inspect or modify the table before committing a mutation answer.'}\n    if p.get('mutation_not_attempted'):\n        return {'kind': 'block_and_prompt', 'message': 'This is a data-changing task, but no INSERT, UPDATE, or DELETE has been executed yet. Perform the mutation and verify it before committing.'}\n    if p.get('commit_empty_answer') and not nb.get('ready_to_commit_candidate'):\n        return {'kind': 'block_and_prompt', 'message': 'Do not commit an empty answer for a mutation task without first executing and verifying the database change.'}\n    return None"
+    }
+  ]
+}
+</patch>

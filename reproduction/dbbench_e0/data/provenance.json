@@ -1,0 +1,22 @@
+{
+  "checkpoint": "identity-clean E0 iter143",
+  "export_date": "2026-10-11",
+  "source_run_relative_path": "outputs/identityv1_after127_newckpts_a0_eval_20260717/identityclean_iter_0000143/dbbench_test",
+  "source_run_config_sha256": "2587fc77e3ca28cb56ad14b97739e54ab0cf34f054ceee3fbaf3f12fc7b4f29f",
+  "test_data_sha256": "cf8dec6fb8051f46e6171136824aaa8b8707c3affbb3185c0bad2b39bc6b71e2",
+  "test_data_rows": 300,
+  "test_data_bytes_unchanged": true,
+  "task_order": "File order; 30 consecutive batches of 10, no shuffle",
+  "prompt_messages_unchanged": false,
+  "all_outputs_and_patches_preserved": 30,
+  "metadata_changes": [
+    "Removed private prompt-reference path",
+    "Added explicit schema/protocol labels"
+  ],
+  "canonical_hash_encoding": "SHA256 of UTF-8 json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':'))",
+  "new_model_requests": 0,
+  "prompt_changes": [
+    "Replaced one internal rollout-directory path in each overview with [PATH]; schema and trace text preserved"
+  ],
+  "redacted_rollout_directory_paths": 30
+}

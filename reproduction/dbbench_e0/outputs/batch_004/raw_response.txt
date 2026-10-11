@@ -1,0 +1,31 @@
+- Recurring failures are schema/identifier quoting issues, text numerics compared lexicographically, empty filters from wrong entity columns, and verbose commits for list answers. - Maintain reusable stages for schema probing, empty-result debugging, text-numeric casting, repeated-query loops, and ready-to-commit candidate answers. - on_init gives compact SQL workflow guidance; on_post_step updates stage from predicates/results; make_pre_hint gives deduped recovery hints; on_before_action blocks only unsafe commits. - Avoided hard-coded SQL/answers and broad rewrites, preserving successful trajectories while improving general DBBench debugging.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL schema recovery, text-numeric handling, and answer-format guidance for DBBench table tasks.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['need_schema_probe'] = True\n    text = 'DBBench SQL workflow: use exact table and column names from the prompt/schema; in MySQL wrap identifiers with spaces, punctuation, or newlines in backticks, not double quotes. Many table cells are TEXT, so cast numeric-looking fields for comparisons, ordering, and aggregates. After empty filters, inspect sample rows and distinct values for the intended entity column. Commit concise answer values, not prose.'\n    return {'skills': [{'text': text}], 'tool_hint': 'Use MySQL syntax: backticks for identifiers, CONCAT for string concatenation, and CAST for numeric text.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    stage = nb.get('stage') or 'start'\n    if p.get('unknown_column_error') or p.get('syntax_error') or s.get('last_error_kind') in ('unknown_col', 'syntax'):\n        stage = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n    elif p.get('last_result_empty') and not p.get('mutation_task'):\n        stage = 'fixing_empty_result'\n    elif p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        stage = 'repeated_query_loop'\n    elif p.get('text_only_loop') or (s.get('text_only_streak') or 0) >= 2:\n        stage = 'text_numeric_cast'\n    elif p.get('mutation_task') and s.get('mutation_attempted'):\n        stage = 'ready_to_commit_candidate'\n    elif p.get('candidate_answer_available') and not s.get('candidate_implausible'):\n        stage = 'ready_to_commit_candidate'\n    nb['stage'] = stage\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage') or ''\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Schema recovery: use SHOW TABLES, then DESCRIBE the exact table name. In MySQL, backtick identifiers with spaces or punctuation; do not use double quotes for table or column names.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty result recovery: inspect a few rows and distinct values for the relevant entity column. A person or team name may be in a different column than the team or nation column, so relax one filter at a time.'\n    elif stage == 'text_numeric_cast':\n        msg = 'Text numeric recovery: when ranking, filtering, or aggregating numbers stored as TEXT, use CAST(column AS SIGNED) in the predicate or ORDER BY, not lexicographic comparison.'\n    elif stage == 'repeated_query_loop':\n        msg = 'Repeated query loop: change the debugging step instead of rerunning the same SQL. Probe schema, sample rows, distinct values, or relax filters based on the last result.'\n    elif stage == 'ready_to_commit_candidate':\n        msg = 'Before committing, match the requested answer shape. For list questions, submit concise answer values or tuples without explanatory prose; for mutation tasks, verify the affected rows if useful.'\n    if not msg or nb.get('last_hint') == msg:\n        return None\n    nb['last_hint'] = msg\n    return {'message': msg}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    a = ctx.get('action') or {}\n    p = ctx.get('predicates') or {}\n    if a.get('tool') != 'commit_final_answer':\n        return None\n    if p.get('commit_before_sql') or p.get('no_sql_yet'):\n        return {'kind': 'block_and_prompt', 'message': 'Run at least one SQL query to inspect the table before committing a final answer.'}\n    if p.get('commit_empty_answer') and not (p.get('mutation_task') and (ctx.get('state') or {}).get('mutation_attempted')):\n        return {'kind': 'block_and_prompt', 'message': 'Do not commit an empty answer for a SELECT-style task. Use SQL evidence to provide the requested values.'}\n    if p.get('mutation_task') and p.get('mutation_not_attempted'):\n        return {'kind': 'block_and_prompt', 'message': 'This is a data-changing task; execute the INSERT, UPDATE, or DELETE before committing.'}\n    return None"
+    }
+  ]
+}
+</patch>

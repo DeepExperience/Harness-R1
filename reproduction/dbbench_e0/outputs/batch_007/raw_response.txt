@@ -1,0 +1,31 @@
+- Recurring failures are reusable SQL/answer-format issues: MySQL identifier quoting, text numerics with commas/percent signs, empty filters from wrong literal types, and final answers losing exact SQL result formatting. - Maintain stages for schema probing, empty-result recovery, text-numeric handling, mutation execution/verification, repeated-query loops, and ready-to-commit candidates. - on_init gives compact SQL workflow guidance; on_post_step updates stage from predicates/results; make_pre_hint gives deduped recovery hints; on_before_action blocks only unsafe commits. - Avoided hard-coded answers or SQL rewrites, preserving successful trajectories while improving generic DBBench debugging and answer-shape handling.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL debugging stages for MySQL quoting, text numerics, empty filters, and exact answer formatting.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['need_schema_probe'] = True\n    text = 'DBBench SQL workflow: use MySQL backticks for identifiers with spaces or punctuation; inspect schema/sample values after errors or empty filters; cast text numerics for ranking or aggregation; preserve exact returned values and formatting in final answers.'\n    return {'skills': [{'text': text}], 'tool_hint': 'MySQL uses backticks for table/column names, not double quotes. Do not normalize punctuation, spaces, percent signs, or commas in stored text unless the task explicitly asks for normalization.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    stage = nb.get('stage') or 'start'\n    if p.get('unknown_column_error') or p.get('syntax_error') or s.get('last_error_kind') in ('unknown_col', 'syntax'):\n        stage = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n    elif p.get('last_result_empty') and not p.get('mutation_task'):\n        stage = 'fixing_empty_result'\n    elif p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        stage = 'repeated_query_loop'\n    elif p.get('text_only_loop') or (s.get('text_only_streak') or 0) >= 2:\n        stage = 'text_numeric_handling'\n    elif p.get('mutation_task') and s.get('mutation_attempted'):\n        stage = 'mutation_verify'\n    elif p.get('candidate_answer_available') and not s.get('candidate_implausible'):\n        stage = 'ready_to_commit_candidate'\n    nb['stage'] = stage\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage')\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Schema or identifier issue: use SHOW TABLES, DESCRIBE the target table, or inspect a few sample rows. In MySQL, wrap table and column names containing spaces, punctuation, parentheses, or reserved words in backticks.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty SELECT: inspect distinct or sample values for the filtered columns, then match stored text exactly. Numeric-looking fields may contain commas, percent signs, spaces, or be stored as text, so use the displayed literal format rather than a normalized number.'\n    elif stage == 'text_numeric_handling':\n        msg = 'Text numeric handling: for ranking, min/max, sum, or ordering over numeric text, clean separators such as commas or percent signs with REPLACE and CAST to SIGNED or DECIMAL. Preserve original text only when the final answer asks for the stored value.'\n    elif stage == 'repeated_query_loop':\n        msg = 'Repeated SQL loop: change the debugging step instead of rerunning the same query. Probe schema, sample values, distinct filter values, or a simpler aggregate, then adjust quoting, literals, casts, or grouping.'\n    elif stage == 'mutation_verify':\n        msg = 'Mutation task: after INSERT, UPDATE, or DELETE, an empty tool result can still mean success. Verify the affected rows or final table state with SELECT, then commit without treating [] as failure.'\n    elif stage == 'ready_to_commit_candidate':\n        msg = 'Before committing, match the answer shape to the question and SQL result. For totals or aggregates, submit the numeric result rather than dropping trailing zeros or percent signs unless normalization is requested; for best/worst/rank questions, use the numeric rank or position, not a label.'\n    if not msg:\n        return None\n    key = stage + ':' + msg[:60]\n    if nb.get('last_hint') == key:\n        return None\n    nb['last_hint'] = key\n    return {'message': msg}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    a = ctx.get('action') or {}\n    if a.get('tool') != 'commit_final_answer':\n        return None\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    answers = a.get('answers')\n    if p.get('commit_before_sql') or (s.get('sql_count') or 0) == 0:\n        return {'kind': 'block_and_prompt', 'message': 'Run at least one SQL query to inspect the table before committing a final answer.'}\n    if p.get('commit_empty_answer') and not (p.get('mutation_task') and s.get('mutation_attempted')):\n        return {'kind': 'block_and_prompt', 'message': 'Do not commit an empty answer for a SELECT-style task. Use the SQL result values, preserving exact formatting when appropriate.'}\n    if p.get('mutation_task') and p.get('mutation_not_attempted'):\n        return {'kind': 'block_and_prompt', 'message': 'This is a data-changing task. Execute the INSERT, UPDATE, or DELETE first; final text alone will not change the database state.'}\n    return None"
+    }
+  ]
+}
+</patch>

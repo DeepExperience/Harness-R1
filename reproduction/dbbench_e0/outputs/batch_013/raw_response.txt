@@ -1,0 +1,31 @@
+- Recurring failures are schema/identifier quoting issues, TEXT numerics stored with commas, mutation verification gaps, and CREATE/ALTER when the target table already exists. - Maintain reusable stages for schema probing, empty/repeated query recovery, TEXT numeric handling, mutation execution/verification, and table-existence checks. - on_init gives compact SQL workflow guidance; on_post_step updates stage from predicates/results; make_pre_hint emits deduped recovery hints; on_before_action blocks only unsafe commits. - Avoided hard-coded SQL/answers and broad rewrites, preserving successful trajectories while improving general DBBench mutation debugging.
+</think>
+<patch>
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL schema recovery, TEXT numeric handling, and mutation verification guidance for DBBench.",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['need_schema_probe'] = True\n    text = 'DBBench SQL workflow: use exact table and column names from the prompt; quote identifiers with backticks when names contain spaces, punctuation, or reserved words. Many table cells are TEXT, so cast cleaned numerics for ranking or aggregation and preserve requested punctuation, spaces, percent signs, and null/none wording. For INSERT/UPDATE/DELETE, execute the mutation, verify with SELECT, then commit.'\n    return {'skills': [{'text': text}], 'tool_hint': 'Prefer schema probes after identifier errors; do not CREATE or ALTER the target table unless the task explicitly asks to create it.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    a = ctx.get('action') or {}\n    q = (a.get('query') or '').strip().lower()\n    if p.get('unknown_column_error') or p.get('syntax_error') or (s.get('last_result_was_error') and s.get('last_error_kind') in ('unknown_col', 'syntax')):\n        nb['stage'] = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n        return None\n    if p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        nb['stage'] = 'repeated_query_loop'\n        return None\n    if p.get('last_result_empty') and not p.get('mutation_task'):\n        nb['stage'] = 'fixing_empty_result'\n        return None\n    if p.get('text_only_loop') or (s.get('text_only_streak') or 0) >= 2:\n        nb['stage'] = 'text_numeric_handling'\n        return None\n    if p.get('mutation_task'):\n        if p.get('mutation_not_attempted'):\n            nb['stage'] = 'mutation_needs_execution'\n        elif s.get('mutation_attempted'):\n            nb['stage'] = 'verify_mutation'\n            nb['mutation_needs_execution'] = False\n        return None\n    if p.get('candidate_answer_available') and not s.get('candidate_implausible'):\n        nb['stage'] = 'ready_to_commit_candidate'\n    if q.startswith('create table') or q.startswith('alter table'):\n        nb['stage'] = 'table_exists_check'\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage')\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Identifier/schema issue: run DESCRIBE on the exact target table, using backticks for names with spaces or punctuation. Use discovered column names exactly; do not replace spaces with underscores or invent columns.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty SELECT: inspect sample rows or distinct values for the filtered columns, then relax one predicate or use LIKE to see stored formatting before retrying.'\n    elif stage == 'repeated_query_loop':\n        msg = 'Repeated SQL is not adding evidence. Change strategy: inspect schema/sample values, simplify predicates, or verify exact stored text and numeric formatting.'\n    elif stage == 'text_numeric_handling':\n        msg = 'TEXT numerics may contain commas, spaces, or percent signs. For ranking or aggregation, clean the string (remove separators), CAST to SIGNED or DECIMAL, and preserve the original displayed value when returning or inserting.'\n    elif stage == 'mutation_needs_execution':\n        msg = 'This is a data-changing task: execute the INSERT, UPDATE, or DELETE before committing. An empty tool result can still mean the mutation ran.'\n    elif stage == 'verify_mutation':\n        msg = 'After a mutation, verify the affected row or count with SELECT. If values were normalized unexpectedly, correct them before final commit.'\n    elif stage == 'table_exists_check':\n        msg = 'Do not CREATE or ALTER the named target table unless the task explicitly asks to create it. If the table already exists, use DESCRIBE and INSERT/UPDATE/DELETE on the existing schema.'\n    if not msg:\n        return None\n    key = stage + ':' + msg[:60]\n    if nb.get('last_hint') == key:\n        return None\n    nb['last_hint'] = key\n    return {'message': msg}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    a = ctx.get('action') or {}\n    p = ctx.get('predicates') or {}\n    if a.get('tool') != 'commit_final_answer':\n        return None\n    if p.get('commit_before_sql') or p.get('no_sql_yet'):\n        return {'kind': 'block_and_prompt', 'message': 'Run at least one SQL query to inspect or modify the database before committing a final answer.'}\n    if p.get('commit_empty_answer') and not (p.get('mutation_task') and (nb.get('stage') == 'verify_mutation' or (ctx.get('state') or {}).get('mutation_attempted'))):\n        return {'kind': 'block_and_prompt', 'message': 'Do not commit an empty answer for a SELECT-style task. Use SQL evidence to provide the requested values or rows.'}\n    if p.get('mutation_task') and p.get('mutation_not_attempted'):\n        return {'kind': 'block_and_prompt', 'message': 'This mutation task has not executed a data-changing SQL statement yet. Run the INSERT, UPDATE, or DELETE before committing.'}\n    return None"
+    }
+  ]
+}
+</patch>

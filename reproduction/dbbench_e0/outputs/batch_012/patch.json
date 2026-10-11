@@ -1,0 +1,27 @@
+{
+  "schema_version": "harness-r1-patch-v1",
+  "benchmark": "dbbench",
+  "description": "Reusable SQL schema recovery, empty-result debugging, and mutation verification guidance",
+  "actions": [
+    {
+      "type": "add_code_hook",
+      "hook": "on_init",
+      "code": "def hook(ctx, nb):\n    nb['stage'] = 'start'\n    nb['last_hint'] = ''\n    nb['need_schema_probe'] = True\n    text = 'DBBench SQL workflow: use exact table and column names from the prompt; quote identifiers with backticks when names contain spaces, punctuation, or reserved words. After syntax or unknown-column errors, inspect schema with SHOW TABLES and DESCRIBE. For SELECT tasks, submit raw result values rather than prose. For INSERT/UPDATE/DELETE tasks, execute the mutation, verify with SELECT, then commit.'\n    return {'skills': [{'text': text}], 'tool_hint': 'Use MySQL syntax; backtick non-simple identifiers; do not create tables that already exist.'}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_post_step",
+      "code": "def hook(ctx, nb):\n    p = ctx.get('predicates') or {}\n    s = ctx.get('state') or {}\n    a = ctx.get('action') or {}\n    q = (a.get('query') or '').strip().lower()\n    if p.get('unknown_column_error') or p.get('syntax_error') or (s.get('last_result_was_error') and s.get('last_error_kind') in ('unknown_col', 'syntax')):\n        nb['stage'] = 'need_schema_probe'\n        nb['fixing_unknown_column'] = bool(p.get('unknown_column_error'))\n        return None\n    if p.get('repeated_sql') or (s.get('loop_streak') or 0) >= 2:\n        nb['stage'] = 'repeated_query_loop'\n        return None\n    if p.get('last_result_empty') and not p.get('mutation_task') and not p.get('last_result_error'):\n        nb['stage'] = 'fixing_empty_result'\n        return None\n    if p.get('mutation_task'):\n        if p.get('mutation_not_attempted'):\n            nb['stage'] = 'mutation_needs_execution'\n        elif s.get('mutation_attempted'):\n            nb['stage'] = 'ready_to_commit_candidate'\n            nb['mutation_needs_execution'] = False\n        return None\n    if p.get('candidate_answer_available') and not s.get('candidate_implausible'):\n        nb['stage'] = 'ready_to_commit_candidate'\n    return None"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "make_pre_hint",
+      "code": "def hook(ctx, nb):\n    stage = nb.get('stage')\n    msg = ''\n    if stage == 'need_schema_probe':\n        msg = 'Schema recovery: use SHOW TABLES, then DESCRIBE the exact table name with backticks. Copy discovered column names exactly, including spaces, punctuation, and arrow characters; wrap every such column in backticks.'\n    elif stage == 'fixing_empty_result':\n        msg = 'Empty SELECT recovery: inspect sample rows or distinct values for the relevant columns, then relax one predicate at a time. Check case, spacing, punctuation, and whether numeric-looking fields are stored as text.'\n    elif stage == 'mutation_needs_execution':\n        msg = 'Mutation task: first DESCRIBE the target table, then run the INSERT, UPDATE, or DELETE using backticked non-simple identifiers. An empty tool result can still mean the data-changing statement ran.'\n    elif stage == 'ready_to_commit_candidate':\n        if (ctx.get('predicates') or {}).get('mutation_task'):\n            msg = 'Before committing a mutation, verify the affected row or count with SELECT. Do not treat [] after INSERT/UPDATE/DELETE as failure by itself.'\n        else:\n            msg = 'Before committing a SELECT answer, submit the raw value(s) from the SQL result in the requested shape, not a prose explanation.'\n    elif stage == 'repeated_query_loop':\n        msg = 'Repeated SQL loop: change strategy by probing schema, sampling rows, or distinct values instead of rerunning the same query.'\n    if not msg:\n        return None\n    key = stage + ':' + msg[:60]\n    if nb.get('last_hint') == key:\n        return None\n    nb['last_hint'] = key\n    return {'message': msg}"
+    },
+    {
+      "type": "add_code_hook",
+      "hook": "on_before_action",
+      "code": "def hook(ctx, nb):\n    a = ctx.get('action') or {}\n    p = ctx.get('predicates') or {}\n    if a.get('tool') != 'commit_final_answer':\n        return None\n    if p.get('commit_before_sql') or p.get('no_sql_yet'):\n        return {'kind': 'block_and_prompt', 'message': 'Run at least one SQL query to inspect or modify the database before committing a final answer.'}\n    if p.get('commit_empty_answer') and not (p.get('mutation_task') and (nb.get('stage') == 'ready_to_commit_candidate' or (ctx.get('state') or {}).get('mutation_attempted'))):\n        return {'kind': 'block_and_prompt', 'message': 'Do not commit an empty answer for a SELECT-style task. Use SQL evidence to provide the requested value(s).'}\n    if p.get('mutation_task') and p.get('mutation_not_attempted') and not p.get('commit_before_sql'):\n        return {'kind': 'block_and_prompt', 'message': 'This is a data-changing task, but no INSERT, UPDATE, or DELETE has been executed yet. Run the mutation and verify it before committing.'}\n    return None"
+    }
+  ]
+}

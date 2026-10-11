@@ -1,0 +1,41 @@
+{
+  "batch_tag": "batch_007",
+  "start": 70,
+  "end": 80,
+  "valid_patch": true,
+  "patch_status": "valid",
+  "eval_status": "ok",
+  "eval_returncode": 0,
+  "patched_rewards": {
+    "76": 1.0,
+    "75": 0.0,
+    "70": 0.0,
+    "72": 1.0,
+    "78": 1.0,
+    "79": 1.0,
+    "73": 1.0,
+    "74": 1.0,
+    "71": 0.0,
+    "77": 1.0
+  },
+  "patched_n": 10,
+  "baseline_pass": 5,
+  "patched_pass": 7,
+  "baseline_average_reward": 0.5,
+  "patched_average_reward": 0.7,
+  "batch_size": 10,
+  "delta_pass": 2,
+  "delta_pass_rate": 0.2,
+  "delta_average_reward": 0.19999999999999996,
+  "score": 0.2,
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 5288,
+    "total_tokens": 6767,
+    "completion_tokens": 1479,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 0
+  },
+  "patch_sha256": "2a578917b0765fed54c6f26fbde9b35d6587267087c57b6d49fbd94759f6b7c1",
+  "raw_response_sha256": "f78d4c1ef0c0b8d20e6844c2073bf7c54f0e666921830de4284039c3cf1c935e"
+}

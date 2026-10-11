@@ -217,7 +217,8 @@ Harness-R1/
 └── tests/                             protocol and sandbox unit tests
 ```
 
-Neither benchmark assets, model weights, nor training data are bundled. See
+External environment assets, model weights, and training data are not bundled.
+The ALFWorld split and DBBench main-table test records are included for reproduction. See
 [docs/BENCHMARK_SETUP.md](docs/BENCHMARK_SETUP.md) for how to install the
 WebShop, ALFWorld, and DBBench environments.
 
@@ -253,6 +254,10 @@ The [ALFWorld E0 reference](reproduction/alfworld_e0/) likewise includes the
 original 50 inputs and outputs, valid patches, and key settings. Use
 [`scripts/reproduce_alfworld_main_table.sh`](scripts/reproduce_alfworld_main_table.sh)
 to replay the archived patches or regenerate them from the exact inputs.
+
+The [DBBench E0 reference](reproduction/dbbench_e0/) provides all 30 original
+inputs, outputs, and patches, the exact 300-task test file, and
+[`scripts/reproduce_dbbench_main_table.sh`](scripts/reproduce_dbbench_main_table.sh).
 
 Evaluation is fixed-batch run-patch-rerun: read a prompt plus immutable
 baseline metadata, generate one patch, validate it, rerun the frozen target on
