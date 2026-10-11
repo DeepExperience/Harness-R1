@@ -5,10 +5,12 @@ INPUT="${1:?usage: eval_dbbench.sh PREPARED_JSONL OUTPUT_DIR}"
 OUTPUT="${2:?usage: eval_dbbench.sh PREPARED_JSONL OUTPUT_DIR}"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-PYTHON_BIN="$(command -v "${PYTHON_BIN:-python}")"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 AGENTBENCH_PYTHON="${AGENTBENCH_PYTHON:-${PYTHON_BIN}}"
 DBBENCH_WORKER_PYTHON="${DBBENCH_WORKER_PYTHON:-${PYTHON_BIN}}"
 RUN_ID="${RUN_ID:-dbbench_$(date +%Y%m%d_%H%M%S)}"
+source "$SCRIPT_DIR/path_helpers.sh"
+harness_freeze_eval_paths DBBENCH_WORKER_PYTHON
 ENGINEER_ASSISTANT_PREFILL="${ENGINEER_ASSISTANT_PREFILL:-$'<think>\n'}"
 if [[ -z "${ENGINEER_CHAT_TEMPLATE_KWARGS:-}" ]]; then
   ENGINEER_CHAT_TEMPLATE_KWARGS='{"enable_thinking":true}'

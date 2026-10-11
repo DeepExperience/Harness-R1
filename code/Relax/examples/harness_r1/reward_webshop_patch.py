@@ -22,6 +22,7 @@ from relax.utils.types import Sample
 REPO_ROOT = Path(__file__).resolve().parents[4]
 AGENTBENCH_SCRIPTS = REPO_ROOT / "code/life-harness/AgentBench/scripts"
 sys.path.insert(0, str(AGENTBENCH_SCRIPTS))
+from harness_r1_paths import default_python, normalize_pythonpath, repo_path  # noqa: E402
 
 from harness_r1_patch import (  # noqa: E402
     PatchValidationError,
@@ -141,6 +142,7 @@ def _resolve_java_home() -> Path | None:
 
 def _clean_env() -> dict[str, str]:
     env = os.environ.copy()
+    normalize_pythonpath(env)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     no_proxy = (
@@ -682,7 +684,7 @@ def _score_sync(args: Any, sample: Sample) -> dict[str, Any]:
         eval_max_attempts=eval_max_attempts,
     )
     eval_key = _patch_hash(batch_tag, patch, valid_bonus=valid_bonus, reward_context=reward_context)
-    eval_root = Path(getattr(args, "harness_r1_eval_root", REPO_ROOT / "outputs/relax_harness_r1/reward_cache"))
+    eval_root = repo_path(getattr(args, "harness_r1_eval_root", REPO_ROOT / "outputs/relax_harness_r1/reward_cache"))
     eval_dir = eval_root / batch_tag / eval_key
     reward_path = eval_dir / "reward.json"
     lock_path = eval_dir / ".lock"
@@ -749,22 +751,19 @@ def _score_sync(args: Any, sample: Sample) -> dict[str, Any]:
         target_url = target_urls[int(eval_key[:6], 16) % len(target_urls)]
         run_id = f"relax_webshop_{batch_tag}_{eval_key}"
         script = REPO_ROOT / "code/life-harness/AgentBench/scripts/harness_r1_batch_debug.py"
-        agentbench_dir = Path(
+        agentbench_dir = repo_path(
             getattr(
                 args,
                 "harness_r1_agentbench_dir",
-                REPO_ROOT / "external/harness_evolution/life-harness/AgentBench",
+                REPO_ROOT / "code/life-harness/AgentBench",
             )
         )
-        default_agentbench_python = (
-            agentbench_dir / ".venv/bin/python"
-            if (agentbench_dir / ".venv/bin/python").exists()
-            else REPO_ROOT / "external/harness_evolution/life-harness/AgentBench/.venv/bin/python"
-        )
-        agentbench_python = Path(
-            getattr(args, "harness_r1_agentbench_python", default_agentbench_python)
+        agentbench_python = repo_path(
+            getattr(args, "harness_r1_agentbench_python", default_python(agentbench_dir))
         )
         webshop_worker_python = str(getattr(args, "harness_r1_webshop_worker_python", "") or "").strip()
+        if webshop_worker_python:
+            webshop_worker_python = str(repo_path(webshop_worker_python))
 
         eval_dir.mkdir(parents=True, exist_ok=True)
         timing["prepare_eval_sec"] = round(time.monotonic() - t_prepare, 3)

@@ -240,6 +240,9 @@ Source-only checks (no endpoints or benchmark assets needed):
 python scripts/check_release.py
 ```
 
+See [Paths and Interpreters](docs/PATHS.md) for relative-path handling,
+virtualenv selection, and the configuration paths that must be supplied locally.
+
 ## Evaluation
 
 To reproduce the WebShop main-table row, use the

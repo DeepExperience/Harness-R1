@@ -22,6 +22,7 @@ from relax.utils.types import Sample
 REPO_ROOT = Path(__file__).resolve().parents[4]
 AGENTBENCH_SCRIPTS = REPO_ROOT / "code/life-harness/AgentBench/scripts"
 sys.path.insert(0, str(AGENTBENCH_SCRIPTS))
+from harness_r1_paths import default_python, normalize_pythonpath, repo_path  # noqa: E402
 
 from harness_r1_patch import (  # noqa: E402
     PatchValidationError,
@@ -117,6 +118,7 @@ def _reward_of(row: dict[str, Any]) -> float:
 
 def _clean_env() -> dict[str, str]:
     env = os.environ.copy()
+    normalize_pythonpath(env)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     no_proxy = (
@@ -567,21 +569,16 @@ def _score_sync(args: Any, sample: Sample) -> dict[str, Any]:
         retry_count + 1,
     )
 
-    agentbench_dir = Path(
+    agentbench_dir = repo_path(
         getattr(
             args,
             "harness_r1_agentbench_dir",
-            REPO_ROOT / "external/harness_evolution/life-harness/AgentBench",
+            REPO_ROOT / "code/life-harness/AgentBench",
         )
     )
-    default_agentbench_python = (
-        agentbench_dir / ".venv/bin/python"
-        if (agentbench_dir / ".venv/bin/python").exists()
-        else REPO_ROOT / "code/life-harness/AgentBench/.venv-py310/bin/python"
-    )
-    agentbench_python = Path(getattr(args, "harness_r1_agentbench_python", default_agentbench_python))
-    dbbench_worker_python = Path(getattr(args, "harness_r1_dbbench_worker_python", agentbench_python))
-    dbbench_data_file = Path(
+    agentbench_python = repo_path(getattr(args, "harness_r1_agentbench_python", default_python(agentbench_dir)))
+    dbbench_worker_python = repo_path(getattr(args, "harness_r1_dbbench_worker_python", agentbench_python))
+    dbbench_data_file = repo_path(
         getattr(args, "harness_r1_dbbench_data_file", agentbench_dir / "data/dbbench/db_out_new.jsonl")
     )
     docker_network_name = str(getattr(args, "harness_r1_docker_network_name", "harness_r1_agentbench") or "harness_r1_agentbench")
@@ -626,7 +623,7 @@ def _score_sync(args: Any, sample: Sample) -> dict[str, Any]:
         eval_max_attempts=eval_max_attempts,
     )
     eval_key = _patch_hash(batch_tag, patch, valid_bonus=valid_bonus, reward_context=reward_context)
-    eval_root = Path(getattr(args, "harness_r1_eval_root", REPO_ROOT / "outputs/relax_harness_r1/reward_cache_dbbench"))
+    eval_root = repo_path(getattr(args, "harness_r1_eval_root", REPO_ROOT / "outputs/relax_harness_r1/reward_cache_dbbench"))
     eval_dir = eval_root / batch_tag / eval_key
     reward_path = eval_dir / "reward.json"
     lock_path = eval_dir / ".lock"

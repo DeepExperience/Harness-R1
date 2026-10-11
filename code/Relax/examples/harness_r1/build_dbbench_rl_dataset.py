@@ -176,7 +176,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--target-base-url", default="http://127.0.0.1:8110/v1")
     parser.add_argument("--target-model", default="Qwen3.5-9B")
     parser.add_argument("--target-agent-name", default="qwen35-9b-dbbench-nothink")
-    parser.add_argument("--dbbench-data-file", type=Path, default=REPO_ROOT / "external/harness_evolution/life-harness/AgentBench/data/dbbench/db_out_new.jsonl")
+    parser.add_argument("--dbbench-data-file", type=Path, default=REPO_ROOT / "code/life-harness/AgentBench/data/dbbench/db_out_new.jsonl")
     parser.add_argument("--dbbench-max-round", type=int, default=20)
     parser.add_argument("--prompt-version", default="dbbench_rltrain_qwen35_9b_nothink_life_multihook_prefill_20260626")
     return parser.parse_args()

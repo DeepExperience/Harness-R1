@@ -6,7 +6,7 @@ trust_remote_code: true
 stage: sft
 do_train: true
 finetuning_type: full
-deepspeed: examples/deepspeed/ds_z3_config.json
+deepspeed: /path/to/LLaMA-Factory/examples/deepspeed/ds_z3_config.json
 
 ### dataset
 dataset_dir: /path/to/agent_sft_dataset
@@ -37,4 +37,3 @@ gradient_checkpointing: true
 seed: 42
 data_seed: 42
 ddp_timeout: 180000000
-

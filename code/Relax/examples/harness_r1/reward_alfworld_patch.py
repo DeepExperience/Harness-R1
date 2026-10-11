@@ -22,6 +22,7 @@ from relax.utils.types import Sample
 REPO_ROOT = Path(__file__).resolve().parents[4]
 AGENTBENCH_SCRIPTS = REPO_ROOT / "code/life-harness/AgentBench/scripts"
 sys.path.insert(0, str(AGENTBENCH_SCRIPTS))
+from harness_r1_paths import default_python, default_worker_python, normalize_pythonpath, repo_path  # noqa: E402
 
 from harness_r1_patch import (  # noqa: E402
     PatchValidationError,
@@ -101,6 +102,7 @@ def _reward_of(row: dict[str, Any]) -> float:
 
 def _clean_env() -> dict[str, str]:
     env = os.environ.copy()
+    normalize_pythonpath(env)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     no_proxy = (
@@ -610,7 +612,7 @@ def _score_sync(args: Any, sample: Sample) -> dict[str, Any]:
         eval_max_attempts=eval_max_attempts,
     )
     eval_key = _patch_hash(batch_tag, patch, valid_bonus=valid_bonus, reward_context=reward_context)
-    eval_root = Path(
+    eval_root = repo_path(
         getattr(args, "harness_r1_eval_root", REPO_ROOT / "outputs/relax_harness_r1/reward_cache_alfworld")
     )
     eval_dir = eval_root / batch_tag / eval_key
@@ -664,24 +666,19 @@ def _score_sync(args: Any, sample: Sample) -> dict[str, Any]:
         target_url = target_urls[int(eval_key[:6], 16) % len(target_urls)]
         run_id = f"relax_alfworld_{batch_tag}_{eval_key}"
         script = REPO_ROOT / "code/life-harness/AgentBench/scripts/harness_r1_batch_debug.py"
-        agentbench_dir = Path(
+        agentbench_dir = repo_path(
             getattr(
                 args,
                 "harness_r1_agentbench_dir",
-                REPO_ROOT / "external/harness_evolution/life-harness/AgentBench",
+                REPO_ROOT / "code/life-harness/AgentBench",
             )
         )
-        default_agentbench_python = (
-            agentbench_dir / ".venv/bin/python"
-            if (agentbench_dir / ".venv/bin/python").exists()
-            else REPO_ROOT / "external/harness_evolution/life-harness/AgentBench/.venv/bin/python"
-        )
-        agentbench_python = Path(getattr(args, "harness_r1_agentbench_python", default_agentbench_python))
-        alfworld_worker_python = Path(
+        agentbench_python = repo_path(getattr(args, "harness_r1_agentbench_python", default_python(agentbench_dir)))
+        alfworld_worker_python = repo_path(
             getattr(
                 args,
                 "harness_r1_alfworld_worker_python",
-                agentbench_dir / ".venvs/alfworld-worker/bin/python",
+                default_worker_python(agentbench_dir, "alfworld", agentbench_python),
             )
         )
         alfworld_split = str(metadata.get("split") or getattr(args, "harness_r1_alfworld_split", "harness_r1_eval500_20260609"))

@@ -25,10 +25,13 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-AGENTBENCH_DIR = REPO_ROOT / "external/harness_evolution/life-harness/AgentBench"
-AGENTBENCH_PYTHON = REPO_ROOT / "external/harness_evolution/life-harness/AgentBench/.venv/bin/python"
+AGENTBENCH_DIR = REPO_ROOT / "code/life-harness/AgentBench"
 AGENTBENCH_SCRIPTS = REPO_ROOT / "code/life-harness/AgentBench/scripts"
 sys.path.insert(0, str(AGENTBENCH_SCRIPTS))
+
+from harness_r1_paths import default_python, normalize_pythonpath  # noqa: E402
+
+AGENTBENCH_PYTHON = default_python(AGENTBENCH_DIR)
 
 from harness_r1_patch import (  # noqa: E402
     PatchValidationError,
@@ -90,6 +93,7 @@ def message_text(message: dict[str, Any], response_protocol: str = "json_patch")
 
 def clean_env() -> dict[str, str]:
     env = os.environ.copy()
+    normalize_pythonpath(env)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     no_proxy = (
@@ -1020,10 +1024,10 @@ def parse_args() -> argparse.Namespace:
         args.patch_source_root = args.patch_source_root.resolve()
     if args.engineer_transformers_model_dir is not None:
         args.engineer_transformers_model_dir = args.engineer_transformers_model_dir.resolve()
-    args.agentbench_dir = args.agentbench_dir.resolve()
-    args.agentbench_python = args.agentbench_python.resolve()
+    args.agentbench_dir = args.agentbench_dir.expanduser().resolve()
+    args.agentbench_python = args.agentbench_python.expanduser().absolute()
     if args.harness_runner_python is not None:
-        args.harness_runner_python = args.harness_runner_python.resolve()
+        args.harness_runner_python = args.harness_runner_python.expanduser().absolute()
     if args.webshop_worker_python is not None:
         # Keep venv python symlinks intact. Resolving them can turn
         # .venvs/webshop-worker/bin/python into the bare interpreter and drop

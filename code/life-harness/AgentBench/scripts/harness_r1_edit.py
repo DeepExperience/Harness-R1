@@ -26,10 +26,7 @@ def repo_root_from_script() -> Path:
 
 
 def default_agentbench_dir(repo_root: Path) -> Path:
-    external = repo_root / "external/harness_evolution/life-harness/AgentBench"
-    if external.exists():
-        return external
-    return Path(__file__).resolve().parents[1]
+    return repo_root / "code/life-harness/AgentBench"
 
 
 def clean_env() -> dict[str, str]:

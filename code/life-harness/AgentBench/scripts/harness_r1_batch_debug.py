@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from harness_r1_patch import compile_patch_to_task_definition, load_patch
+from harness_r1_paths import default_python, default_worker_python, normalize_pythonpath
 
 
 BENCHES = {"webshop", "alfworld", "dbbench"}
@@ -125,10 +126,7 @@ def repo_root_from_script() -> Path:
 
 
 def default_agentbench_dir(repo_root: Path) -> Path:
-    external = repo_root / "external/harness_evolution/life-harness/AgentBench"
-    if external.exists():
-        return external
-    return Path(__file__).resolve().parents[1]
+    return repo_root / "code/life-harness/AgentBench"
 
 
 def clean_env(extra: dict[str, str] | None = None) -> dict[str, str]:
@@ -154,6 +152,7 @@ def clean_env(extra: dict[str, str] | None = None) -> dict[str, str]:
             env["PATH"] = f"{java_bin}:{path}" if path else java_bin
     if extra:
         env.update({k: str(v) for k, v in extra.items()})
+    normalize_pythonpath(env)
     return env
 
 
@@ -192,13 +191,6 @@ def venv_site_packages_for_python(python: Path | None) -> list[str]:
 def local_setup_source_paths(args: argparse.Namespace, source_name: str) -> list[str]:
     candidates = [
         args.agentbench_dir / ".local_setup" / source_name,
-        SCRIPT_REPO_ROOT
-        / "external"
-        / "harness_evolution"
-        / "life-harness"
-        / "AgentBench"
-        / ".local_setup"
-        / source_name,
     ]
     seen: set[Path] = set()
     paths: list[str] = []
@@ -610,16 +602,16 @@ def worker_python(args: argparse.Namespace, bench: str) -> Path:
     if bench == "webshop":
         if args.webshop_worker_python is not None:
             return args.webshop_worker_python
-        return args.agentbench_dir / ".venvs/webshop-worker/bin/python"
+        return default_worker_python(args.agentbench_dir, bench, args.agentbench_python)
     if bench == "alfworld":
         if args.alfworld_worker_python is not None:
             return args.alfworld_worker_python
-        return args.agentbench_dir / ".venvs/alfworld-worker-clean/bin/python"
+        return default_worker_python(args.agentbench_dir, bench, args.agentbench_python)
     if args.dbbench_worker_python is not None:
         return args.dbbench_worker_python
     if args.agentbench_python is not None:
         return args.agentbench_python
-    return args.agentbench_dir / ".venv/bin/python"
+    return default_python(args.agentbench_dir)
 
 
 def dbbench_worker_env(args: argparse.Namespace) -> dict[str, str]:
@@ -647,6 +639,8 @@ def worker_env(args: argparse.Namespace, bench: str) -> dict[str, str]:
             str(args.agentbench_dir / "src"),
             str(args.agentbench_dir),
         ]
+        if os.environ.get("PYTHONPATH"):
+            pythonpath_parts.append(os.environ["PYTHONPATH"])
         return clean_env(
             {
                 "PYTHONPATH": ":".join(pythonpath_parts)
@@ -661,6 +655,8 @@ def worker_env(args: argparse.Namespace, bench: str) -> dict[str, str]:
         str(args.agentbench_dir / "src"),
         str(args.agentbench_dir),
     ]
+    if os.environ.get("PYTHONPATH"):
+        pythonpath_parts.append(os.environ["PYTHONPATH"])
     return clean_env(
         {
             "ALFWORLD_DATA": str(args.agentbench_dir / "data/alfworld"),
@@ -1294,7 +1290,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--dbbench-data-file",
         type=Path,
-        default=agentbench_dir / "data/dbbench/standard.jsonl",
+        default=None,
     )
     parser.add_argument("--dbbench-max-round", type=int, default=20)
     parser.add_argument("--dbbench-env-driver", choices=["docker", "manual"], default="docker")
@@ -1315,15 +1311,17 @@ def parse_args() -> argparse.Namespace:
     )
     args = parser.parse_args()
     args.repo_root = repo_root
-    args.agentbench_dir = args.agentbench_dir.resolve()
+    args.agentbench_dir = args.agentbench_dir.expanduser().resolve()
     if args.agentbench_python is None:
-        args.agentbench_python = args.agentbench_dir / ".venv/bin/python"
-    args.agentbench_python = Path(args.agentbench_python).absolute()
+        args.agentbench_python = default_python(args.agentbench_dir)
+    args.agentbench_python = Path(args.agentbench_python).expanduser().absolute()
     if args.dbbench_worker_python is None:
         args.dbbench_worker_python = args.agentbench_python
     else:
         args.dbbench_worker_python = Path(args.dbbench_worker_python).expanduser().absolute()
-    if not args.dbbench_data_file.is_absolute():
+    if args.dbbench_data_file is None:
+        args.dbbench_data_file = args.agentbench_dir / "data/dbbench/standard.jsonl"
+    if not args.dbbench_data_file.expanduser().is_absolute():
         args.dbbench_data_file = args.agentbench_dir / args.dbbench_data_file
     args.dbbench_data_file = args.dbbench_data_file.expanduser().resolve()
     if args.webshop_worker_python is not None:

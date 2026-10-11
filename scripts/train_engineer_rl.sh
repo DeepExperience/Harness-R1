@@ -19,12 +19,14 @@ now=$(date "+%Y%m%d-%H%M%S")
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 HARNESS_ROOT="$(cd -- "${SCRIPT_DIR}/.." &>/dev/null && pwd)"
 RELAX_ROOT="${HARNESS_ROOT}/code/Relax"
+source "$SCRIPT_DIR/path_helpers.sh"
 
-export RELAX="${RELAX:-${RELAX_ROOT}}"
-export MEGATRON="${MEGATRON:-${RELAX_ROOT}/deps/Megatron-LM}"
-export SGLANG="${SGLANG:-${RELAX_ROOT}/deps/sglang/python}"
+export RELAX="$(harness_abspath "${RELAX:-${RELAX_ROOT}}")"
+export MEGATRON="$(harness_abspath "${MEGATRON:-${RELAX_ROOT}/deps/Megatron-LM}")"
+export SGLANG="$(harness_abspath "${SGLANG:-${RELAX_ROOT}/deps/sglang/python}")"
 export PYTHONPATH="${RELAX}:${MEGATRON}:${SGLANG}:${RELAX}:${PYTHONPATH:-}"
-export MODEL_CONFIG_DIR="${MODEL_CONFIG_DIR:-${RELAX_ROOT}/scripts/models}"
+harness_freeze_pythonpath
+export MODEL_CONFIG_DIR="$(harness_abspath "${MODEL_CONFIG_DIR:-${RELAX_ROOT}/scripts/models}")"
 export PYTHONUNBUFFERED=1
 export CUDA_DEVICE_MAX_CONNECTIONS=1
 export RELAX_MASTER_PORT_BASE_ACTOR="${RELAX_MASTER_PORT_BASE_ACTOR:-29000}"
@@ -40,13 +42,30 @@ export NCCL_RAS_ENABLE="${NCCL_RAS_ENABLE:-0}"
 export NCCL_COLLNET_ENABLE="${NCCL_COLLNET_ENABLE:-0}"
 export NCCL_SOCKET_RETRY_CNT="${NCCL_SOCKET_RETRY_CNT:-50}"
 export NCCL_SOCKET_RETRY_SLEEP_MSEC="${NCCL_SOCKET_RETRY_SLEEP_MSEC:-100}"
-PYTHON_BIN="${PYTHON_BIN:-$(command -v python3)}"
-RAY_BIN="${RAY_BIN:-$(command -v ray)}"
+PYTHON_BIN="$(harness_command_path "${PYTHON_BIN:-python3}")"
+RAY_BIN="${RAY_BIN:-ray}"
 export RUN_DIRECT="${RUN_DIRECT:-1}"
+if [ "$RUN_DIRECT" != "1" ]; then
+   RAY_BIN="$(harness_command_path "$RAY_BIN")"
+fi
 HOST_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
 NO_PROXY_VALUE="${NO_PROXY_VALUE:-127.0.0.1,localhost,0.0.0.0,${MASTER_ADDR:-127.0.0.1},${HOST_IP}}"
 export NO_PROXY="${NO_PROXY:-${NO_PROXY_VALUE}}"
 export no_proxy="${no_proxy:-${NO_PROXY_VALUE}}"
+
+for path_name in HARNESS_R1_DATA HARNESS_R1_CONFIG EXP_DIR SAVE_DIR SAVE_PATH LOAD_PATH WORKING_DIR; do
+   if [[ -n "${!path_name:-}" ]]; then
+      printf -v "$path_name" '%s' "$(harness_abspath "${!path_name}")"
+   fi
+done
+case "${QWEN35_HF:-}" in
+   /*|./*|../*|'~/'*) QWEN35_HF="$(harness_abspath "$QWEN35_HF")" ;;
+   *)
+      if [[ -n "${QWEN35_HF:-}" && -e "$QWEN35_HF" ]]; then
+         QWEN35_HF="$(harness_abspath "$QWEN35_HF")"
+      fi
+      ;;
+esac
 
 source "${MODEL_CONFIG_DIR}/qwen35-9B.sh"
 cd "${RELAX_ROOT}"
@@ -85,7 +104,8 @@ PY
       export WANDB_API_KEY
    fi
 fi
-export RUNTIME_ENV_JSON="${RUNTIME_ENV_JSON:-{
+if [ -z "${RUNTIME_ENV_JSON:-}" ]; then
+export RUNTIME_ENV_JSON="{
 \"worker_process_setup_hook\": \"relax.utils.logging_utils.install_asyncio_noise_filter\",
 \"env_vars\": {
    \"PYTHONUNBUFFERED\": \"1\",
@@ -112,7 +132,8 @@ export RUNTIME_ENV_JSON="${RUNTIME_ENV_JSON:-{
    \"no_proxy\": \"${no_proxy}\",
    \"SGLANG_HEALTH_CHECK_TIMEOUT\": \"${SGLANG_HEALTH_CHECK_TIMEOUT:-180}\"
 }
-}}"
+}"
+fi
 
 PROJECT_NAME="${PROJECT_NAME:=Harness-R1/mixed-codepatch}"
 EXP_DIR="${EXP_DIR:-${HARNESS_ROOT}}"
@@ -120,7 +141,7 @@ SAVE_DIR="${SAVE_DIR:-${EXP_DIR}/outputs/checkpoints}"
 : "${QWEN35_HF:?Set QWEN35_HF to the actor/reference Hugging Face checkpoint}"
 : "${HARNESS_R1_DATA:?Set HARNESS_R1_DATA to a grouped Harness-R1 JSONL}"
 : "${NUM_ROLLOUT:?Set NUM_ROLLOUT to the number of rollout batches}"
-HARNESS_R1_CONFIG="${HARNESS_R1_CONFIG:-${EXP_DIR}/configs/rl/mixed_codepatch.yaml}"
+HARNESS_R1_CONFIG="${HARNESS_R1_CONFIG:-${HARNESS_ROOT}/configs/rl/mixed_codepatch.yaml}"
 CUSTOM_RM_PATH="${CUSTOM_RM_PATH:-examples.harness_r1.reward_mixed_codepatch.reward_func}"
 SAVE_PATH="${SAVE_PATH:-${SAVE_DIR}/qwen35-9b-harness-r1-${now}}"
 if [ -z "${APPLY_CHAT_TEMPLATE_KWARGS:-}" ]; then

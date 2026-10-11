@@ -7,7 +7,7 @@ enable_liger_kernel: true
 stage: sft
 do_train: true
 finetuning_type: full
-deepspeed: examples/deepspeed/ds_z3_config.json
+deepspeed: /path/to/LLaMA-Factory/examples/deepspeed/ds_z3_config.json
 
 ### dataset
 ### Point dataset_dir at a LLaMA-Factory dataset directory holding train.json

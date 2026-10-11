@@ -5,11 +5,19 @@ INPUT="${1:?usage: eval_alfworld.sh INPUT_JSONL OUTPUT_DIR}"
 OUTPUT="${2:?usage: eval_alfworld.sh INPUT_JSONL OUTPUT_DIR}"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-PYTHON_BIN="$(command -v "${PYTHON_BIN:-python}")"
+PYTHON_BIN="${PYTHON_BIN:-python}"
 AGENTBENCH_PYTHON="${AGENTBENCH_PYTHON:-${PYTHON_BIN}}"
 ALFWORLD_WORKER_PYTHON="${ALFWORLD_WORKER_PYTHON:-${PYTHON_BIN}}"
 RUN_ID="${RUN_ID:-alfworld_$(date +%Y%m%d_%H%M%S)}"
+source "$SCRIPT_DIR/path_helpers.sh"
+harness_freeze_eval_paths ALFWORLD_WORKER_PYTHON
 ENGINEER_ASSISTANT_PREFILL="${ENGINEER_ASSISTANT_PREFILL:-$'<think>\n'}"
+if [[ -z "${ENGINEER_CHAT_TEMPLATE_KWARGS:-}" ]]; then
+  ENGINEER_CHAT_TEMPLATE_KWARGS='{"enable_thinking":true}'
+fi
+if [[ -z "${ROLLOUT_CHAT_TEMPLATE_KWARGS:-}" ]]; then
+  ROLLOUT_CHAT_TEMPLATE_KWARGS='{"enable_thinking":false}'
+fi
 
 OPTIONAL=()
 [[ -n "${PATCH_SOURCE_ROOT:-}" ]] && OPTIONAL+=(--patch-source-root "${PATCH_SOURCE_ROOT}")
@@ -30,7 +38,7 @@ exec "${PYTHON_BIN}" code/Relax/examples/harness_r1/eval_alfworld_patches.py \
   --engineer-concurrency "${ENGINEER_CONCURRENCY:-8}" \
   --engineer-temperature "${ENGINEER_TEMPERATURE:-0.0}" \
   --engineer-top-p "${ENGINEER_TOP_P:-1.0}" \
-  --engineer-chat-template-kwargs "${ENGINEER_CHAT_TEMPLATE_KWARGS:-{\"enable_thinking\":true}}" \
+  --engineer-chat-template-kwargs "$ENGINEER_CHAT_TEMPLATE_KWARGS" \
   --engineer-assistant-prefill "${ENGINEER_ASSISTANT_PREFILL}" \
   --engineer-retries "${ENGINEER_RETRIES:-3}" \
   --response-protocol prefill_think_patch \
@@ -43,7 +51,7 @@ exec "${PYTHON_BIN}" code/Relax/examples/harness_r1/eval_alfworld_patches.py \
   --rollout-concurrency "${ROLLOUT_CONCURRENCY:-16}" \
   --rollout-max-tokens "${ROLLOUT_MAX_TOKENS:-4096}" \
   --rollout-tool-choice "${ROLLOUT_TOOL_CHOICE:-auto}" \
-  --rollout-chat-template-kwargs "${ROLLOUT_CHAT_TEMPLATE_KWARGS:-{\"enable_thinking\":false}}" \
+  --rollout-chat-template-kwargs "$ROLLOUT_CHAT_TEMPLATE_KWARGS" \
   --rollout-auto-retry \
   --agentbench-dir "${AGENTBENCH_DIR:-${ROOT}/code/life-harness/AgentBench}" \
   --agentbench-python "${AGENTBENCH_PYTHON}" \

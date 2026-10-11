@@ -27,8 +27,11 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[4]
 AGENTBENCH_DIR = REPO_ROOT / "code/life-harness/AgentBench"
 AGENTBENCH_SCRIPTS = AGENTBENCH_DIR / "scripts"
-DEFAULT_AGENTBENCH_PYTHON = Path("/data/cache/harness_r1_agentbench_venv_py310/bin/python")
 sys.path.insert(0, str(AGENTBENCH_SCRIPTS))
+
+from harness_r1_paths import default_python, normalize_pythonpath  # noqa: E402
+
+DEFAULT_AGENTBENCH_PYTHON = default_python(AGENTBENCH_DIR)
 
 from harness_r1_patch import (  # noqa: E402
     PatchValidationError,
@@ -56,6 +59,7 @@ def dump_text(path: Path, text: str) -> None:
 
 def clean_env() -> dict[str, str]:
     env = os.environ.copy()
+    normalize_pythonpath(env)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     no_proxy = (
@@ -1144,7 +1148,7 @@ def parse_args() -> argparse.Namespace:
     if args.revision_source_root is not None:
         args.revision_source_root = args.revision_source_root.expanduser().resolve()
     args.agentbench_dir = args.agentbench_dir.expanduser().resolve()
-    # Preserve virtualenv symlink paths. Resolving /data/cache/.../bin/python to
+    # Preserve virtualenv symlink paths. Resolving <venv>/bin/python to
     # /usr/bin/python3.10 loses the venv layout used to discover site-packages.
     args.agentbench_python = args.agentbench_python.expanduser().absolute()
     args.dbbench_worker_python = args.dbbench_worker_python.expanduser().absolute()

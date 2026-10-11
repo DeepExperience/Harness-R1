@@ -19,11 +19,14 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-AGENTBENCH_DIR = REPO_ROOT / "external/harness_evolution/life-harness/AgentBench"
-AGENTBENCH_PYTHON = AGENTBENCH_DIR / ".venv/bin/python"
+AGENTBENCH_DIR = REPO_ROOT / "code/life-harness/AgentBench"
 AGENTBENCH_SCRIPTS = REPO_ROOT / "code/life-harness/AgentBench/scripts"
-ALFWORLD_WORKER_PYTHON = AGENTBENCH_DIR / ".venvs/alfworld-worker/bin/python"
 sys.path.insert(0, str(AGENTBENCH_SCRIPTS))
+
+from harness_r1_paths import default_python, default_worker_python, normalize_pythonpath  # noqa: E402
+
+AGENTBENCH_PYTHON = default_python(AGENTBENCH_DIR)
+ALFWORLD_WORKER_PYTHON = default_worker_python(AGENTBENCH_DIR, "alfworld", AGENTBENCH_PYTHON)
 
 from harness_r1_patch import (  # noqa: E402
     PatchValidationError,
@@ -54,6 +57,7 @@ def dump_text(path: Path, text: str) -> None:
 
 def clean_env() -> dict[str, str]:
     env = os.environ.copy()
+    normalize_pythonpath(env)
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
         env.pop(key, None)
     no_proxy = (
@@ -692,8 +696,8 @@ def parse_args() -> argparse.Namespace:
     args.output_root = args.output_root.resolve()
     if args.patch_source_root is not None:
         args.patch_source_root = args.patch_source_root.resolve()
-    args.agentbench_dir = args.agentbench_dir.resolve()
-    args.agentbench_python = args.agentbench_python.resolve()
+    args.agentbench_dir = args.agentbench_dir.expanduser().resolve()
+    args.agentbench_python = args.agentbench_python.expanduser().absolute()
     # Keep venv python symlinks intact. Resolving them can turn
     # .venvs/alfworld-worker/bin/python into the bare interpreter and drop
     # that venv's site-packages from the worker process.
